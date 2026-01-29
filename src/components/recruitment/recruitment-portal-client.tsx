@@ -14,12 +14,13 @@ import { AdminDashboard } from './admin-dashboard';
 import { ProgressStepper } from './progress-stepper';
 import { submitApplication } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { getAuth, signInAnonymously, onAuthStateChanged, type User } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { signInAnonymously } from 'firebase/auth';
+import { useAuth, useUser } from '@/firebase';
 
 
 export function RecruitmentPortalClient() {
-  const [user, setUser] = useState<User | null>(null);
+  const auth = useAuth();
+  const { user, isUserLoading } = useUser();
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,20 +53,17 @@ export function RecruitmentPortalClient() {
   });
 
   useEffect(() => {
-    signInAnonymously(auth).catch((error) => {
-      console.error("Anonymous sign-in failed:", error);
-      toast({
-        variant: 'destructive',
-        title: "Authentication Error",
-        description: "Could not connect to the service. Please refresh the page.",
-      });
-    });
-
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, [toast]);
+    if (auth && !user && !isUserLoading) {
+        signInAnonymously(auth).catch((error) => {
+        console.error("Anonymous sign-in failed:", error);
+        toast({
+            variant: 'destructive',
+            title: "Authentication Error",
+            description: "Could not connect to the service. Please refresh the page.",
+        });
+        });
+    }
+  }, [auth, user, isUserLoading, toast]);
 
 
   const nextStep = async () => {
@@ -113,6 +111,14 @@ export function RecruitmentPortalClient() {
       });
     }
   };
+  
+  if (isUserLoading) {
+    return (
+        <div className="flex h-screen w-full items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+    )
+  }
 
   if (showAdmin) {
     return <AdminDashboard onExit={() => setShowAdmin(false)} />;
@@ -173,7 +179,7 @@ export function RecruitmentPortalClient() {
                 Next Step <ChevronRight size={18} className="ml-1" />
               </Button>
             ) : (
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || isUserLoading}>
                 {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send size={16} className="mr-2" />}
                 {isSubmitting ? 'Saving...' : 'Submit Application'}
               </Button>
