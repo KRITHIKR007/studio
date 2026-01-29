@@ -85,13 +85,13 @@ export function Step2RoleAndSkills() {
                     control={control}
                     name={`skills.${skill}`}
                     render={({ field }) => (
-                      <TableRow>
-                        <TableCell className="font-medium capitalize">{skill}</TableCell>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          className="contents"
-                        >
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        asChild
+                      >
+                        <TableRow>
+                          <TableCell className="font-medium capitalize">{skill}</TableCell>
                           {PROFICIENCY_LEVELS.map(level => (
                             <TableCell key={level} className="text-center">
                               <FormItem className="flex items-center justify-center">
@@ -101,8 +101,8 @@ export function Step2RoleAndSkills() {
                               </FormItem>
                             </TableCell>
                           ))}
-                        </RadioGroup>
-                      </TableRow>
+                        </TableRow>
+                      </RadioGroup>
                     )}
                   />
                 ))}
