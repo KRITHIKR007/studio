@@ -9,18 +9,18 @@ export const skillsSchema = z.object({
 });
 
 export const applicationSchema = z.object({
-  fullName: z.string().min(2, "Full name is required"),
-  usn: z.string().min(1, "USN / ID is required").trim(),
-  department: z.string().min(1, "Department is required"),
-  year: z.string().min(1, "Year is required"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().min(10, "A valid phone number is required"),
-  roles: z.array(z.string()).min(1, "Please select at least one role"),
-  experienceLevel: z.string().min(1, "Please select your experience level"),
-  projects: z.string().min(10, "Please describe your projects"),
-  techQuestionChoice: z.enum(['a', 'b', 'c'], { required_error: "Please choose a question" }),
-  techQuestionAnswer: z.string().min(10, "Please answer the selected question"),
-  motivation: z.string().min(10, "Please tell us your motivation"),
+  fullName: z.string(),
+  usn: z.string().trim(),
+  department: z.string(),
+  year: z.string(),
+  email: z.string().email("Invalid email address").or(z.literal('')),
+  phone: z.string(),
+  roles: z.array(z.string()),
+  experienceLevel: z.string(),
+  projects: z.string(),
+  techQuestionChoice: z.enum(['a', 'b', 'c']),
+  techQuestionAnswer: z.string(),
+  motivation: z.string(),
   skills: skillsSchema,
 });
 
