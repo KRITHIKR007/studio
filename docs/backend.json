@@ -58,13 +58,32 @@
           "type": "string",
           "description": "The applicant's answer to the chosen technical question."
         },
+        "designQuestionChoice": {
+          "type": "string",
+          "description": "The chosen design question for the application."
+        },
+        "designQuestionAnswer": {
+          "type": "string",
+          "description": "The applicant's answer to the chosen design question."
+        },
         "motivation": {
           "type": "string",
           "description": "The applicant's motivation for joining the club."
         },
         "skills": {
-          "type": "string",
-          "description": "Skills of the applicant."
+          "type": "object",
+          "description": "Skills of the applicant with proficiency levels.",
+          "properties": {
+            "python": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
+            "cpp": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
+            "java": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
+            "javascript": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
+            "r": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
+            "figma": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
+            "photoshop": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
+            "illustrator": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
+            "afterEffects": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] }
+          }
         },
         "userId": {
           "type": "string",
@@ -82,19 +101,6 @@
       },
       "required": [
         "id",
-        "fullName",
-        "usn",
-        "department",
-        "year",
-        "email",
-        "phone",
-        "roles",
-        "experienceLevel",
-        "projects",
-        "techQuestionChoice",
-        "techQuestionAnswer",
-        "motivation",
-        "skills",
         "userId",
         "createdAt",
         "status"

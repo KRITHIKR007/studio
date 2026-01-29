@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Award, Terminal, Brain } from 'lucide-react';
+import { Award, Terminal, Brain, Palette } from 'lucide-react';
 import type { ApplicationSchema } from '@/lib/schema';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
@@ -15,12 +15,20 @@ const techQuestions = {
     c: "Why do we need Batch Normalization?"
 };
 
+const designQuestions = {
+    a: "Describe your design process for a recent project.",
+    b: "Pick a popular app. What is one UI/UX improvement you would make and why?",
+    c: "How would you design a poster for an AI workshop?"
+};
+
 const TECHNICAL_ROLES = ["Tech"];
+const DESIGN_ROLES = ["Design"];
 
 export function Step3Experience() {
   const { control, watch } = useFormContext<ApplicationSchema>();
   const selectedRoles = watch('roles', []);
   const showConceptualCheck = selectedRoles.some(role => TECHNICAL_ROLES.includes(role));
+  const showDesignChallenge = selectedRoles.some(role => DESIGN_ROLES.includes(role));
 
   return (
     <div className="space-y-6">
@@ -125,6 +133,59 @@ export function Step3Experience() {
                           <Textarea
                               rows={3}
                               placeholder="Explain simply..."
+                              {...field}
+                          />
+                      </FormControl>
+                      <FormMessage />
+                  </FormItem>
+                  )}
+              />
+          </CardContent>
+        </Card>
+      )}
+
+      {showDesignChallenge && (
+        <Card className="bg-card/50 backdrop-blur-sm animate-fade-in">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Palette className="text-primary" size={24} /> Design Challenge
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+              <FormField
+                  control={control}
+                  name="designQuestionChoice"
+                  render={({ field }) => (
+                      <FormItem className="space-y-3 mb-4">
+                          <FormLabel>Choose a question to answer</FormLabel>
+                          <FormControl>
+                              <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              className="flex flex-col space-y-1"
+                              >
+                                  {Object.entries(designQuestions).map(([key, value]) => (
+                                      <FormItem key={key} className="flex items-center space-x-3 space-y-0">
+                                          <FormControl><RadioGroupItem value={key} /></FormControl>
+                                          <FormLabel className="font-normal">{value}</FormLabel>
+                                      </FormItem>
+                                  ))}
+                              </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )}
+              />
+              <FormField
+                  control={control}
+                  name="designQuestionAnswer"
+                  render={({ field }) => (
+                  <FormItem>
+                      <FormLabel>Your Answer</FormLabel>
+                      <FormControl>
+                          <Textarea
+                              rows={3}
+                              placeholder="Describe your process and reasoning..."
                               {...field}
                           />
                       </FormControl>

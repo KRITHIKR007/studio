@@ -48,7 +48,13 @@ export function RecruitmentPortalClient() {
         java: 'None',
         javascript: 'None',
         r: 'None',
+        figma: 'None',
+        photoshop: 'None',
+        illustrator: 'None',
+        afterEffects: 'None',
       },
+      designQuestionChoice: 'a',
+      designQuestionAnswer: '',
     },
   });
 
@@ -70,10 +76,12 @@ export function RecruitmentPortalClient() {
     const fieldsToValidate: (keyof ApplicationSchema)[][] = [
         ['fullName', 'usn', 'department', 'year', 'email', 'phone'],
         ['roles', 'skills'],
-        ['experienceLevel', 'projects', 'techQuestionChoice', 'techQuestionAnswer', 'motivation']
+        ['experienceLevel', 'projects', 'techQuestionChoice', 'techQuestionAnswer', 'motivation', 'designQuestionChoice', 'designQuestionAnswer']
     ];
     
-    const isValid = await methods.trigger(fieldsToValidate[step - 1]);
+    const fieldsForStep = fieldsToValidate[step-1] || [];
+    const isValid = await methods.trigger(fieldsForStep as any);
+
     if (isValid) {
       setStep((prev) => prev + 1);
       window.scrollTo(0, 0);

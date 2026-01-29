@@ -23,8 +23,20 @@ const RankCandidatesInputSchema = z.object({
       projects: z.string(),
       techQuestionChoice: z.string(),
       techQuestionAnswer: z.string(),
+      designQuestionChoice: z.string().optional(),
+      designQuestionAnswer: z.string().optional(),
       motivation: z.string(),
-      skills: z.record(z.string(), z.string()),
+      skills: z.object({
+        python: z.string().optional(),
+        cpp: z.string().optional(),
+        java: z.string().optional(),
+        javascript: z.string().optional(),
+        r: z.string().optional(),
+        figma: z.string().optional(),
+        photoshop: z.string().optional(),
+        illustrator: z.string().optional(),
+        afterEffects: z.string().optional(),
+      }).optional(),
     })
   ).describe('Array of candidate data objects.'),
   jobDescription: z.string().optional().describe('Optional job description for context.'),
@@ -49,12 +61,14 @@ const rankCandidatesPrompt = ai.definePrompt({
   name: 'rankCandidatesPrompt',
   input: {schema: RankCandidatesInputSchema},
   output: {schema: RankCandidatesOutputSchema},
-  prompt: `You are an AI recruitment assistant tasked with ranking candidates based on their qualifications, experience, and preferred roles.
+  prompt: `You are an AI recruitment assistant tasked with ranking candidates for a university AI club.
 
-  Analyze the provided candidate data and assign a ranking score to each candidate.
-  Provide a brief explanation for the assigned score.
+  Analyze the provided candidate data and assign a ranking score to each candidate from 0 to 100, where 100 is an ideal match.
+  Provide a brief explanation for each score.
   
-  The ranking score should be a number between 0 and 100, where 100 indicates the candidate is an ideal match.
+  - For 'Tech' roles, focus on technical skills (Python, C++, etc.), projects, and the answer to the conceptual tech question.
+  - For 'Design' roles, focus on design tool proficiency (Figma, Photoshop, etc.) and their response to the design challenge question.
+  - For all roles, consider their motivation, experience level, and projects.
 
   ${'{{#if jobDescription}}'}Consider the following job description when ranking candidates: {{jobDescription}}${'{{/if}}'}
 
