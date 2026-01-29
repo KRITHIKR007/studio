@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Award, Terminal, Brain, Palette } from 'lucide-react';
+import { Award, Terminal, Brain, Palette, ClipboardCheck } from 'lucide-react';
 import type { ApplicationSchema } from '@/lib/schema';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
@@ -21,14 +21,22 @@ const designQuestions = {
     c: "How would you design a poster for an AI workshop?"
 };
 
+const coreQuestions = {
+    a: "You're leading a project that's falling behind schedule. What are the first three steps you would take?",
+    b: "Describe a time you had to explain a complex topic to a non-technical audience. How did you approach it?",
+    c: "Propose an idea for a new workshop or event for the AI Club. Outline the key objectives and target audience."
+};
+
 const TECHNICAL_ROLES = ["Tech"];
 const DESIGN_ROLES = ["Design"];
+const CORE_ROLES = ["Core"];
 
 export function Step3Experience() {
   const { control, watch } = useFormContext<ApplicationSchema>();
   const selectedRoles = watch('roles', []);
   const showConceptualCheck = selectedRoles.some(role => TECHNICAL_ROLES.includes(role));
   const showDesignChallenge = selectedRoles.some(role => DESIGN_ROLES.includes(role));
+  const showCoreChallenge = selectedRoles.some(role => CORE_ROLES.includes(role));
 
   return (
     <div className="space-y-6">
@@ -186,6 +194,59 @@ export function Step3Experience() {
                           <Textarea
                               rows={3}
                               placeholder="Describe your process and reasoning..."
+                              {...field}
+                          />
+                      </FormControl>
+                      <FormMessage />
+                  </FormItem>
+                  )}
+              />
+          </CardContent>
+        </Card>
+      )}
+
+      {showCoreChallenge && (
+        <Card className="bg-card/50 backdrop-blur-sm animate-fade-in">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ClipboardCheck className="text-primary" size={24} /> Situational Judgement
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+              <FormField
+                  control={control}
+                  name="coreQuestionChoice"
+                  render={({ field }) => (
+                      <FormItem className="space-y-3 mb-4">
+                          <FormLabel>Choose a question to answer</FormLabel>
+                          <FormControl>
+                              <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              className="flex flex-col space-y-1"
+                              >
+                                  {Object.entries(coreQuestions).map(([key, value]) => (
+                                      <FormItem key={key} className="flex items-center space-x-3 space-y-0">
+                                          <FormControl><RadioGroupItem value={key} /></FormControl>
+                                          <FormLabel className="font-normal">{value}</FormLabel>
+                                      </FormItem>
+                                  ))}
+                              </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )}
+              />
+              <FormField
+                  control={control}
+                  name="coreQuestionAnswer"
+                  render={({ field }) => (
+                  <FormItem>
+                      <FormLabel>Your Answer</FormLabel>
+                      <FormControl>
+                          <Textarea
+                              rows={3}
+                              placeholder="Explain your thought process..."
                               {...field}
                           />
                       </FormControl>

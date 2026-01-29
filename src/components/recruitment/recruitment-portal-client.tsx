@@ -52,9 +52,15 @@ export function RecruitmentPortalClient() {
         photoshop: 'None',
         illustrator: 'None',
         afterEffects: 'None',
+        projectManagement: 'None',
+        publicSpeaking: 'None',
+        contentWriting: 'None',
+        eventManagement: 'None',
       },
       designQuestionChoice: 'a',
       designQuestionAnswer: '',
+      coreQuestionChoice: 'a',
+      coreQuestionAnswer: '',
     },
   });
 
@@ -76,7 +82,7 @@ export function RecruitmentPortalClient() {
     const fieldsToValidate: (keyof ApplicationSchema)[][] = [
         ['fullName', 'usn', 'department', 'year', 'email', 'phone'],
         ['roles', 'skills'],
-        ['experienceLevel', 'projects', 'techQuestionChoice', 'techQuestionAnswer', 'motivation', 'designQuestionChoice', 'designQuestionAnswer']
+        ['experienceLevel', 'projects', 'techQuestionChoice', 'techQuestionAnswer', 'motivation', 'designQuestionChoice', 'designQuestionAnswer', 'coreQuestionChoice', 'coreQuestionAnswer']
     ];
     
     const fieldsForStep = fieldsToValidate[step-1] || [];

@@ -25,6 +25,8 @@ const RankCandidatesInputSchema = z.object({
       techQuestionAnswer: z.string(),
       designQuestionChoice: z.string().optional(),
       designQuestionAnswer: z.string().optional(),
+      coreQuestionChoice: z.string().optional(),
+      coreQuestionAnswer: z.string().optional(),
       motivation: z.string(),
       skills: z.object({
         python: z.string().optional(),
@@ -36,6 +38,10 @@ const RankCandidatesInputSchema = z.object({
         photoshop: z.string().optional(),
         illustrator: z.string().optional(),
         afterEffects: z.string().optional(),
+        projectManagement: z.string().optional(),
+        publicSpeaking: z.string().optional(),
+        contentWriting: z.string().optional(),
+        eventManagement: z.string().optional(),
       }).optional(),
     })
   ).describe('Array of candidate data objects.'),
@@ -68,6 +74,7 @@ const rankCandidatesPrompt = ai.definePrompt({
   
   - For 'Tech' roles, focus on technical skills (Python, C++, etc.), projects, and the answer to the conceptual tech question.
   - For 'Design' roles, focus on design tool proficiency (Figma, Photoshop, etc.) and their response to the design challenge question.
+  - For 'Core' roles, focus on their responses to the situational questions and skills like project management, communication, and event planning.
   - For all roles, consider their motivation, experience level, and projects.
 
   ${'{{#if jobDescription}}'}Consider the following job description when ranking candidates: {{jobDescription}}${'{{/if}}'}

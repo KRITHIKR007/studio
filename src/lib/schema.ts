@@ -10,6 +10,10 @@ export const skillsSchema = z.object({
   photoshop: z.enum(['None', 'Basic', 'Comfortable', 'Expert']),
   illustrator: z.enum(['None', 'Basic', 'Comfortable', 'Expert']),
   afterEffects: z.enum(['None', 'Basic', 'Comfortable', 'Expert']),
+  projectManagement: z.enum(['None', 'Basic', 'Comfortable', 'Expert']),
+  publicSpeaking: z.enum(['None', 'Basic', 'Comfortable', 'Expert']),
+  contentWriting: z.enum(['None', 'Basic', 'Comfortable', 'Expert']),
+  eventManagement: z.enum(['None', 'Basic', 'Comfortable', 'Expert']),
 });
 
 export const applicationSchema = z.object({
@@ -28,6 +32,8 @@ export const applicationSchema = z.object({
   skills: skillsSchema.partial(),
   designQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   designQuestionAnswer: z.string().optional(),
+  coreQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
+  coreQuestionAnswer: z.string().optional(),
 });
 
 export type ApplicationSchema = z.infer<typeof applicationSchema>;

@@ -66,6 +66,14 @@
           "type": "string",
           "description": "The applicant's answer to the chosen design question."
         },
+        "coreQuestionChoice": {
+          "type": "string",
+          "description": "The chosen core/situational question for the application."
+        },
+        "coreQuestionAnswer": {
+          "type": "string",
+          "description": "The applicant's answer to the chosen core/situational question."
+        },
         "motivation": {
           "type": "string",
           "description": "The applicant's motivation for joining the club."
@@ -82,7 +90,11 @@
             "figma": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
             "photoshop": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
             "illustrator": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
-            "afterEffects": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] }
+            "afterEffects": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
+            "projectManagement": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
+            "publicSpeaking": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
+            "contentWriting": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] },
+            "eventManagement": { "type": "string", "enum": ["None", "Basic", "Comfortable", "Expert"] }
           }
         },
         "userId": {
