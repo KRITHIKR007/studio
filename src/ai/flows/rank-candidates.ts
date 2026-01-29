@@ -27,6 +27,8 @@ const RankCandidatesInputSchema = z.object({
       designQuestionAnswer: z.string().optional(),
       coreQuestionChoice: z.string().optional(),
       coreQuestionAnswer: z.string().optional(),
+      outreachQuestionChoice: z.string().optional(),
+      outreachQuestionAnswer: z.string().optional(),
       motivation: z.string(),
       skills: z.object({
         python: z.string().optional(),

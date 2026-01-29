@@ -56,6 +56,8 @@ export async function getRankedCandidates(): Promise<{ success: boolean; data?: 
         designQuestionAnswer: data.designQuestionAnswer || '',
         coreQuestionChoice: data.coreQuestionChoice || '',
         coreQuestionAnswer: data.coreQuestionAnswer || '',
+        outreachQuestionChoice: data.outreachQuestionChoice || '',
+        outreachQuestionAnswer: data.outreachQuestionAnswer || '',
         motivation: data.motivation || '',
         skills: data.skills || {},
       };

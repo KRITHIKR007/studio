@@ -34,6 +34,8 @@ export const applicationSchema = z.object({
   designQuestionAnswer: z.string().optional(),
   coreQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   coreQuestionAnswer: z.string().optional(),
+  outreachQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
+  outreachQuestionAnswer: z.string().optional(),
 });
 
 export type ApplicationSchema = z.infer<typeof applicationSchema>;

@@ -15,7 +15,7 @@ const CORE_SKILLS = ['projectManagement', 'publicSpeaking', 'contentWriting', 'e
 const PROFICIENCY_LEVELS = ['None', 'Basic', 'Comfortable', 'Expert'];
 const TECHNICAL_ROLES = ["Tech"];
 const DESIGN_ROLES = ["Design"];
-const CORE_ROLES = ["Core"];
+const CORE_ROLES = ["Core", "Outreach"];
 
 export function Step2RoleAndSkills() {
   const { control, watch } = useFormContext<ApplicationSchema>();

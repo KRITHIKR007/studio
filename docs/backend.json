@@ -74,6 +74,14 @@
           "type": "string",
           "description": "The applicant's answer to the chosen core/situational question."
         },
+        "outreachQuestionChoice": {
+          "type": "string",
+          "description": "The chosen outreach question for the application."
+        },
+        "outreachQuestionAnswer": {
+          "type": "string",
+          "description": "The applicant's answer to the chosen outreach question."
+        },
         "motivation": {
           "type": "string",
           "description": "The applicant's motivation for joining the club."
