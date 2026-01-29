@@ -87,23 +87,21 @@ export function Step2RoleAndSkills() {
                     render={({ field }) => (
                       <TableRow>
                         <TableCell className="font-medium capitalize">{skill}</TableCell>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="contents"
-                          >
-                            {PROFICIENCY_LEVELS.map(level => (
-                              <TableCell key={level} className="text-center">
-                                <FormItem className="flex items-center justify-center">
-                                  <FormControl>
-                                    <RadioGroupItem value={level} />
-                                  </FormControl>
-                                </FormItem>
-                              </TableCell>
-                            ))}
-                          </RadioGroup>
-                        </FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="contents"
+                        >
+                          {PROFICIENCY_LEVELS.map(level => (
+                            <TableCell key={level} className="text-center">
+                              <FormItem className="flex items-center justify-center">
+                                <FormControl>
+                                  <RadioGroupItem value={level} />
+                                </FormControl>
+                              </FormItem>
+                            </TableCell>
+                          ))}
+                        </RadioGroup>
                       </TableRow>
                     )}
                   />
