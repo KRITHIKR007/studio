@@ -5,16 +5,21 @@ import { db, appId } from '@/lib/firebase';
 import { applicationSchema, type ApplicationSchema } from '@/lib/schema';
 import { rankCandidates, type RankCandidatesOutput, type RankCandidatesInput } from '@/ai/flows/rank-candidates';
 
-export async function submitApplication(data: ApplicationSchema): Promise<{ success: boolean; error?: string | object }> {
+export async function submitApplication(data: ApplicationSchema, userId: string): Promise<{ success: boolean; error?: string | object }> {
   const validation = applicationSchema.safeParse(data);
   if (!validation.success) {
     return { success: false, error: validation.error.flatten() };
+  }
+
+  if (!userId) {
+    return { success: false, error: 'User is not authenticated.' };
   }
   
   try {
     const collectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'recruitment_applications');
     await addDoc(collectionRef, {
       ...validation.data,
+      userId,
       createdAt: serverTimestamp(),
       status: 'pending'
     });

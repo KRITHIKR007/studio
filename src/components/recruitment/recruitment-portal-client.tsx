@@ -96,7 +96,7 @@ export function RecruitmentPortalClient() {
     }
     
     setIsSubmitting(true);
-    const result = await submitApplication(data);
+    const result = await submitApplication(data, user.uid);
     setIsSubmitting(false);
 
     if (result.success) {
