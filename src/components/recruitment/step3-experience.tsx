@@ -15,8 +15,12 @@ const techQuestions = {
     c: "Why do we need Batch Normalization?"
 };
 
+const TECHNICAL_ROLES = ["Tech"];
+
 export function Step3Experience() {
-  const { control } = useFormContext<ApplicationSchema>();
+  const { control, watch } = useFormContext<ApplicationSchema>();
+  const selectedRoles = watch('roles', []);
+  const showConceptualCheck = selectedRoles.some(role => TECHNICAL_ROLES.includes(role));
 
   return (
     <div className="space-y-6">
@@ -79,56 +83,58 @@ export function Step3Experience() {
         </CardContent>
       </Card>
 
-      <Card className="bg-card/50 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="text-primary" size={24} /> Conceptual Check
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-            <FormField
-                control={control}
-                name="techQuestionChoice"
-                render={({ field }) => (
-                    <FormItem className="space-y-3 mb-4">
-                        <FormLabel>Choose a question to answer</FormLabel>
-                        <FormControl>
-                            <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="flex flex-col space-y-1"
-                            >
-                                {Object.entries(techQuestions).map(([key, value]) => (
-                                    <FormItem key={key} className="flex items-center space-x-3 space-y-0">
-                                        <FormControl><RadioGroupItem value={key} /></FormControl>
-                                        <FormLabel className="font-normal">{value}</FormLabel>
-                                    </FormItem>
-                                ))}
-                            </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-            <FormField
-                control={control}
-                name="techQuestionAnswer"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Your Answer</FormLabel>
-                    <FormControl>
-                        <Textarea
-                            rows={3}
-                            placeholder="Explain simply..."
-                            {...field}
-                        />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-        </CardContent>
-      </Card>
+      {showConceptualCheck && (
+        <Card className="bg-card/50 backdrop-blur-sm animate-fade-in">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="text-primary" size={24} /> Conceptual Check
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+              <FormField
+                  control={control}
+                  name="techQuestionChoice"
+                  render={({ field }) => (
+                      <FormItem className="space-y-3 mb-4">
+                          <FormLabel>Choose a question to answer</FormLabel>
+                          <FormControl>
+                              <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              className="flex flex-col space-y-1"
+                              >
+                                  {Object.entries(techQuestions).map(([key, value]) => (
+                                      <FormItem key={key} className="flex items-center space-x-3 space-y-0">
+                                          <FormControl><RadioGroupItem value={key} /></FormControl>
+                                          <FormLabel className="font-normal">{value}</FormLabel>
+                                      </FormItem>
+                                  ))}
+                              </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )}
+              />
+              <FormField
+                  control={control}
+                  name="techQuestionAnswer"
+                  render={({ field }) => (
+                  <FormItem>
+                      <FormLabel>Your Answer</FormLabel>
+                      <FormControl>
+                          <Textarea
+                              rows={3}
+                              placeholder="Explain simply..."
+                              {...field}
+                          />
+                      </FormControl>
+                      <FormMessage />
+                  </FormItem>
+                  )}
+              />
+          </CardContent>
+        </Card>
+      )}
       
       <Card className="bg-card/50 backdrop-blur-sm">
         <CardHeader>

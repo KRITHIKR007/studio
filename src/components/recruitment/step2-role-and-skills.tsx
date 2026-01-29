@@ -5,14 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Cpu, Code } from 'lucide-react';
 import type { ApplicationSchema } from '@/lib/schema';
 
-const ROLES = ["Tech / ML Engineering", "Research & Experimentation", "Deployment & MLOps", "Data Engineering", "UI/UX for AI Tools", "Content & Outreach"];
+const ROLES = ["Tech", "Design", "Core", "Outreach"];
 const SKILLS = ['python', 'cpp', 'java', 'javascript', 'r'] as const;
 const PROFICIENCY_LEVELS = ['None', 'Basic', 'Comfortable', 'Expert'];
-const TECHNICAL_ROLES = ["Tech / ML Engineering", "Research & Experimentation", "Deployment & MLOps", "Data Engineering"];
+const TECHNICAL_ROLES = ["Tech"];
 
 export function Step2RoleAndSkills() {
   const { control, watch } = useFormContext<ApplicationSchema>();
@@ -47,8 +46,12 @@ export function Step2RoleAndSkills() {
                               checked={field.value?.includes(role)}
                               onCheckedChange={(checked) => {
                                 return checked
-                                  ? field.onChange([...field.value, role])
-                                  : field.onChange(field.value?.filter((value) => value !== role));
+                                  ? field.onChange([...(field.value || []), role])
+                                  : field.onChange(
+                                      field.value?.filter(
+                                        (value) => value !== role
+                                      )
+                                    );
                               }}
                             />
                           </FormControl>
@@ -73,44 +76,40 @@ export function Step2RoleAndSkills() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Language</TableHead>
-                    {PROFICIENCY_LEVELS.map(level => (
-                      <TableHead key={level} className="text-center">{level}</TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {SKILLS.map(skill => (
-                    <FormField
-                      key={skill}
-                      control={control}
-                      name={`skills.${skill}`}
-                      render={({ field }) => (
-                        <TableRow>
-                          <TableCell className="font-medium capitalize">{skill}</TableCell>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="contents"
-                          >
-                            {PROFICIENCY_LEVELS.map(level => (
-                              <TableCell key={level} className="text-center">
-                                <FormControl>
-                                  <RadioGroupItem value={level} />
-                                </FormControl>
-                              </TableCell>
-                            ))}
-                          </RadioGroup>
-                        </TableRow>
-                      )}
-                    />
-                  ))}
-                </TableBody>
-              </Table>
+            <div className="space-y-4">
+              <div className="grid grid-cols-5 items-center gap-4 px-2 text-sm text-muted-foreground">
+                <div className="col-span-1 font-medium text-foreground">Language</div>
+                {PROFICIENCY_LEVELS.map(level => (
+                  <div key={level} className="text-center">{level}</div>
+                ))}
+              </div>
+              {SKILLS.map(skill => (
+                <FormField
+                  key={skill}
+                  control={control}
+                  name={`skills.${skill}`}
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-5 items-center gap-4 px-2 py-2 rounded-md hover:bg-muted/50">
+                      <FormLabel className="col-span-1 capitalize font-medium">{skill}</FormLabel>
+                      <FormControl className="col-span-4">
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="grid grid-cols-4"
+                        >
+                          {PROFICIENCY_LEVELS.map(level => (
+                            <FormItem key={level} className="flex items-center justify-center">
+                              <FormControl>
+                                <RadioGroupItem value={level} />
+                              </FormControl>
+                            </FormItem>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              ))}
             </div>
           </CardContent>
         </Card>
