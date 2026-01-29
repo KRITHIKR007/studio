@@ -12,14 +12,16 @@ import { Step3Experience } from './step3-experience';
 import { SubmissionSuccess } from './submission-success';
 import { AdminDashboard } from './admin-dashboard';
 import { ProgressStepper } from './progress-stepper';
-import { submitApplication } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { signInAnonymously } from 'firebase/auth';
-import { useAuth, useUser } from '@/firebase';
+import { useAuth, useUser, useFirestore, FirestorePermissionError, errorEmitter } from '@/firebase';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { firebaseConfig } from '@/firebase/config';
 
 
 export function RecruitmentPortalClient() {
   const auth = useAuth();
+  const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
@@ -61,6 +63,8 @@ export function RecruitmentPortalClient() {
       designQuestionAnswer: '',
       coreQuestionChoice: 'a',
       coreQuestionAnswer: '',
+      outreachQuestionChoice: 'a',
+      outreachQuestionAnswer: '',
     },
   });
 
@@ -82,7 +86,7 @@ export function RecruitmentPortalClient() {
     const fieldsToValidate: (keyof ApplicationSchema)[][] = [
         ['fullName', 'usn', 'department', 'year', 'email', 'phone'],
         ['roles', 'skills'],
-        ['experienceLevel', 'projects', 'techQuestionChoice', 'techQuestionAnswer', 'motivation', 'designQuestionChoice', 'designQuestionAnswer', 'coreQuestionChoice', 'coreQuestionAnswer']
+        ['experienceLevel', 'projects', 'techQuestionChoice', 'techQuestionAnswer', 'motivation', 'designQuestionChoice', 'designQuestionAnswer', 'coreQuestionChoice', 'coreQuestionAnswer', 'outreachQuestionChoice', 'outreachQuestionAnswer']
     ];
     
     const fieldsForStep = fieldsToValidate[step-1] || [];
@@ -108,20 +112,56 @@ export function RecruitmentPortalClient() {
       });
       return;
     }
-    
-    setIsSubmitting(true);
-    const result = await submitApplication(data, user.uid);
-    setIsSubmitting(false);
-
-    if (result.success) {
-      setSubmitted(true);
-      window.scrollTo(0, 0);
-    } else {
-      console.error("Submission failed:", result.error);
+    if (!firestore) {
       toast({
         variant: 'destructive',
+        title: 'Database not available',
+        description: 'Please refresh and try again.',
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    const validation = applicationSchema.safeParse(data);
+    if (!validation.success) {
+      setIsSubmitting(false);
+      toast({
+        variant: "destructive",
+        title: "Validation Failed",
+        description: "Please check your form for errors.",
+      });
+      console.error("Validation error on submit", validation.error.flatten());
+      return;
+    }
+
+    try {
+      const collectionRef = collection(firestore, 'artifacts', firebaseConfig.appId, 'public', 'data', 'recruitment_applications');
+      
+      await addDoc(collectionRef, {
+        ...validation.data,
+        userId: user.uid,
+        createdAt: serverTimestamp(),
+        status: 'pending'
+      });
+
+      setIsSubmitting(false);
+      setSubmitted(true);
+      window.scrollTo(0, 0);
+    } catch (error: any) {
+      setIsSubmitting(false);
+      const collectionRef = collection(firestore, 'artifacts', firebaseConfig.appId, 'public', 'data', 'recruitment_applications');
+      const permissionError = new FirestorePermissionError({
+        path: collectionRef.path,
+        operation: 'create',
+        requestResourceData: validation.data,
+      });
+      errorEmitter.emit('permission-error', permissionError);
+      
+      toast({
+        variant: "destructive",
         title: "Submission Failed",
-        description: typeof result.error === 'string' ? result.error : "Please check your form for errors and try again.",
+        description: "Could not save your application. Please try again.",
       });
     }
   };

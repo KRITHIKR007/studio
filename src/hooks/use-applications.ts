@@ -1,20 +1,27 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query } from 'firebase/firestore';
-import { db, appId } from '@/lib/firebase';
+import { useFirestore } from '@/firebase';
+import { firebaseConfig } from '@/firebase/config';
 import type { Application } from '@/lib/types';
 
 export function useApplications() {
+  const firestore = useFirestore();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!firestore) {
+        setLoading(false);
+        return;
+    }
+    const appId = firebaseConfig.appId;
     if (!appId) {
         console.error("Firebase App ID is not configured.");
         setLoading(false);
         return;
     }
-    const collectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'recruitment_applications');
+    const collectionRef = collection(firestore, 'artifacts', appId, 'public', 'data', 'recruitment_applications');
     const q = query(collectionRef);
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -23,7 +30,6 @@ export function useApplications() {
         ...doc.data()
       } as Application));
       
-      // Per user instruction, sort in memory
       apps.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
       setApplications(apps);
@@ -34,7 +40,7 @@ export function useApplications() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [firestore]);
 
   return { applications, loading };
 }

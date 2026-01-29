@@ -1,34 +1,8 @@
 'use server';
 
-import { addDoc, collection, getDocs, serverTimestamp } from 'firebase/firestore';
-import { db, appId } from '@/lib/firebase';
-import { applicationSchema, type ApplicationSchema } from '@/lib/schema';
+import { collection, getDocs, serverTimestamp } from 'firebase/firestore';
+import { db, appId } from './firebase-server';
 import { rankCandidates, type RankCandidatesOutput, type RankCandidatesInput } from '@/ai/flows/rank-candidates';
-
-export async function submitApplication(data: ApplicationSchema, userId: string): Promise<{ success: boolean; error?: string | object }> {
-  const validation = applicationSchema.safeParse(data);
-  if (!validation.success) {
-    return { success: false, error: validation.error.flatten() };
-  }
-
-  if (!userId) {
-    return { success: false, error: 'User is not authenticated.' };
-  }
-  
-  try {
-    const collectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'recruitment_applications');
-    await addDoc(collectionRef, {
-      ...validation.data,
-      userId,
-      createdAt: serverTimestamp(),
-      status: 'pending'
-    });
-    return { success: true };
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    return { success: false, error: 'Failed to submit application to the database.' };
-  }
-}
 
 export async function getRankedCandidates(): Promise<{ success: boolean; data?: RankCandidatesOutput; error?: string }> {
   try {
@@ -39,8 +13,7 @@ export async function getRankedCandidates(): Promise<{ success: boolean; data?: 
       return { success: true, data: [] };
     }
     
-    // Ensure the data matches the expected schema for the AI flow
-    const candidateData = snapshot.docs.map(doc => {
+    const candidateData: RankCandidatesInput['candidateData'] = snapshot.docs.map(doc => {
       const data = doc.data();
       return {
         fullName: data.fullName || '',
