@@ -12,9 +12,13 @@ import type { ApplicationSchema } from '@/lib/schema';
 const ROLES = ["Tech / ML Engineering", "Research & Experimentation", "Deployment & MLOps", "Data Engineering", "UI/UX for AI Tools", "Content & Outreach"];
 const SKILLS = ['python', 'cpp', 'java', 'javascript', 'r'] as const;
 const PROFICIENCY_LEVELS = ['None', 'Basic', 'Comfortable', 'Expert'];
+const TECHNICAL_ROLES = ["Tech / ML Engineering", "Research & Experimentation", "Deployment & MLOps", "Data Engineering"];
 
 export function Step2RoleAndSkills() {
-  const { control } = useFormContext<ApplicationSchema>();
+  const { control, watch } = useFormContext<ApplicationSchema>();
+  const selectedRoles = watch('roles', []);
+
+  const showProficiency = selectedRoles.some(role => TECHNICAL_ROLES.includes(role));
 
   return (
     <div className="space-y-6">
@@ -61,56 +65,56 @@ export function Step2RoleAndSkills() {
         </CardContent>
       </Card>
 
-      <Card className="bg-card/50 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Code className="text-primary" size={24} /> Proficiency
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Language</TableHead>
-                  {PROFICIENCY_LEVELS.map(level => (
-                    <TableHead key={level} className="text-center">{level}</TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {SKILLS.map(skill => (
-                  <FormField
-                    key={skill}
-                    control={control}
-                    name={`skills.${skill}`}
-                    render={({ field }) => (
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        asChild
-                      >
+      {showProficiency && (
+        <Card className="bg-card/50 backdrop-blur-sm animate-fade-in">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Code className="text-primary" size={24} /> Proficiency
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Language</TableHead>
+                    {PROFICIENCY_LEVELS.map(level => (
+                      <TableHead key={level} className="text-center">{level}</TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {SKILLS.map(skill => (
+                    <FormField
+                      key={skill}
+                      control={control}
+                      name={`skills.${skill}`}
+                      render={({ field }) => (
                         <TableRow>
                           <TableCell className="font-medium capitalize">{skill}</TableCell>
-                          {PROFICIENCY_LEVELS.map(level => (
-                            <TableCell key={level} className="text-center">
-                              <FormItem className="flex items-center justify-center">
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="contents"
+                          >
+                            {PROFICIENCY_LEVELS.map(level => (
+                              <TableCell key={level} className="text-center">
                                 <FormControl>
                                   <RadioGroupItem value={level} />
                                 </FormControl>
-                              </FormItem>
-                            </TableCell>
-                          ))}
+                              </TableCell>
+                            ))}
+                          </RadioGroup>
                         </TableRow>
-                      </RadioGroup>
-                    )}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                      )}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
