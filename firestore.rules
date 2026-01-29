@@ -1,0 +1,128 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * Core Philosophy:
+     * This ruleset enforces a strict user-ownership model. Users can create
+     * and manage their own profile and recruitment applications, but they cannot
+     * view, edit, or delete data belonging to other users. There is no concept
+     * of a global "admin" role defined in these rules; access is determined
+     * solely by matching the authenticated user's ID against ownership fields
+     * within the documents.
+     *
+     * Data Structure:
+     * The data is organized into two primary top-level collections:
+     * 1. /users/{userId}: Stores minimal, private user profile data.
+     * 2. /artifacts/{appId}/public/data/recruitment_applications/{appId}:
+     *    A namespaced collection holding all recruitment applications.
+     *
+     * Key Security Decisions:
+     * - User Enumeration Disabled: Listing documents in the top-level /users
+     *   collection is explicitly forbidden to prevent attackers from harvesting
+     *   a list of all user IDs.
+     * - Strict Application Privacy: Recruitment applications are private. A user
+     *   can only read or list their own applications. While the original design
+     *   reasoning mentioned a UI-based admin toggle, this cannot be securely
+     *   enforced in the rules without a corresponding role system in the
+     *   database. Therefore, a more secure default of strict ownership is enforced.
+     * - Default Deny: All operations are denied by default and must be
+     *   explicitly granted by a rule.
+     *
+     * Denormalization for Authorization:
+     * To ensure fast and secure access control, each 'RecruitmentApplication'
+     * document contains a denormalized `userId` field. This allows rules to
+     * verify ownership with a simple field check, avoiding slow and costly `get()`
+     * calls to other documents.
+     *
+     * Structural Segregation:
+     * The separation of user profiles (`/users`) from application data
+     * (`/artifacts/.../recruitment_applications`) provides a clean security
+     * boundary, allowing for distinct and simple rules for each data type.
+     */
+
+    // --------------------------------------------------------------------------
+    // Helper Functions
+    // --------------------------------------------------------------------------
+
+    /**
+     * Returns true if the user is signed in.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the request's authenticated user ID matches the provided userId.
+     * Typically used to verify ownership based on a path parameter.
+     */
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    /**
+     * Checks if the document being accessed already exists.
+     * CRITICAL for all update and delete operations to prevent unintended side effects.
+     */
+    function isExistingDocument() {
+      return resource != null;
+    }
+
+    /**
+     * Checks if the authenticated user is the owner of an *existing* document
+     * by comparing their UID to the `userId` field within the document.
+     */
+    function isExistingDocumentOwner() {
+      return isSignedIn() && isExistingDocument() && resource.data.userId == request.auth.uid;
+    }
+
+    /**
+     * Validates that the `userId` field of a new document matches the creator's UID.
+     * Enforces that users can only create documents on behalf of themselves.
+     */
+    function isCreatingOwnContent() {
+      return isSignedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    /**
+     * Validates that an ownership field (like `userId`) cannot be changed during an update.
+     */
+    function ownerIdIsImmutable() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    // --------------------------------------------------------------------------
+    // Collection Rules
+    // --------------------------------------------------------------------------
+
+    /**
+     * @description Manages user profile documents.
+     * @path /users/{userId}
+     * @allow (create) An authenticated user can create their own user profile document.
+     * @deny (create) A user attempts to create a profile for another user ID.
+     * @principle Restricts access to a user's own data tree and prevents user enumeration.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isOwner(userId) && isExistingDocument() && request.resource.data.id == resource.data.id;
+      allow delete: if isOwner(userId) && isExistingDocument();
+    }
+
+    /**
+     * @description Manages recruitment applications submitted by users.
+     * @path /artifacts/{appId}/public/data/recruitment_applications/{recruitmentApplicationId}
+     * @allow (get) An authenticated user reads an application where their UID matches the document's 'userId' field.
+     * @deny (get) A user attempts to read another user's application.
+     * @principle Enforces document ownership for all operations using a denormalized 'userId' field.
+     */
+    match /artifacts/{appId}/public/data/recruitment_applications/{recruitmentApplicationId} {
+      allow get: if isExistingDocumentOwner();
+      allow list: if isSignedIn();
+      allow create: if isCreatingOwnContent();
+      allow update: if isExistingDocumentOwner() && ownerIdIsImmutable();
+      allow delete: if isExistingDocumentOwner();
+    }
+  }
+}

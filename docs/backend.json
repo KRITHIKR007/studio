@@ -1,0 +1,166 @@
+{
+  "entities": {
+    "RecruitmentApplication": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "RecruitmentApplication",
+      "type": "object",
+      "description": "Represents a recruitment application submitted by a candidate.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the recruitment application."
+        },
+        "fullName": {
+          "type": "string",
+          "description": "The full name of the applicant."
+        },
+        "usn": {
+          "type": "string",
+          "description": "The University Student Number or ID of the applicant."
+        },
+        "department": {
+          "type": "string",
+          "description": "The department the applicant belongs to."
+        },
+        "year": {
+          "type": "string",
+          "description": "The year of study of the applicant."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the applicant.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "The phone number of the applicant."
+        },
+        "roles": {
+          "type": "array",
+          "description": "The roles the applicant is interested in.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "experienceLevel": {
+          "type": "string",
+          "description": "The experience level of the applicant."
+        },
+        "projects": {
+          "type": "string",
+          "description": "The project portfolio or links provided by the applicant."
+        },
+        "techQuestionChoice": {
+          "type": "string",
+          "description": "The chosen technical question for the application."
+        },
+        "techQuestionAnswer": {
+          "type": "string",
+          "description": "The applicant's answer to the chosen technical question."
+        },
+        "motivation": {
+          "type": "string",
+          "description": "The applicant's motivation for joining the club."
+        },
+        "skills": {
+          "type": "string",
+          "description": "Skills of the applicant."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N RecruitmentApplication)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp of when the application was created.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The status of the application (e.g., pending, reviewed, accepted)."
+        }
+      },
+      "required": [
+        "id",
+        "fullName",
+        "usn",
+        "department",
+        "year",
+        "email",
+        "phone",
+        "roles",
+        "experienceLevel",
+        "projects",
+        "techQuestionChoice",
+        "techQuestionAnswer",
+        "motivation",
+        "skills",
+        "userId",
+        "createdAt",
+        "status"
+      ]
+    },
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the application.  Does not include authentication data.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        }
+      },
+      "required": [
+        "id"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "artifacts/{appId}/public/data/recruitment_applications/{recruitmentApplicationId}",
+        "definition": {
+          "entityName": "RecruitmentApplication",
+          "schema": {
+            "$ref": "#/backend/entities/RecruitmentApplication"
+          },
+          "description": "Stores recruitment applications. Includes 'userId' for authorization independence, identifying the user who created the application.",
+          "params": [
+            {
+              "name": "appId",
+              "description": "The unique identifier for the application."
+            },
+            {
+              "name": "recruitmentApplicationId",
+              "description": "The unique identifier for the recruitment application."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Contains only the 'id' field. Other user data should be managed by auth.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to address the 'auth/invalid-api-key' error and follows best practices for security, scalability, and debuggability, particularly focusing on authorization independence.\n\nThe primary structure involves a top-level collection `artifacts` which then divides each application based on its app id. Inside each app, there is `public/data/recruitment_applications` collection. This collection contains all application documents.\n\n**Authorization Independence:**\n\n*   The design achieves Authorization Independence by avoiding `get()` calls in security rules. There is no reliance on parent document data to authorize access to subcollection documents. All necessary authorization information is contained within the application documents themselves. Specifically, the `userId` field within each `RecruitmentApplication` document allows rules to directly verify ownership without needing to fetch user data.\n\n**QAPs (Rules are not Filters):**\n\n*   The structure enables secure `list` operations because all documents within a collection share the same security requirements (Structural Segregation). Admin access is controlled by the `showAdmin` state in the UI, which is not directly tied to Firestore security rules but assumed as a condition to view all applications. The UI code fetches application documents, sorts them in memory, and displays it.\n\n**DBAC (Database Authenticated Control):**\n\n*   The structure relies solely on `request.auth.uid` for authorization. Since roles are not explicitly managed as global roles in this setup, all access is based on the authenticated user's `uid` and the `userId` stored in the `RecruitmentApplication` document. There are no custom claims used.\n\n**Other Considerations:**\n\n*   The `createdAt` timestamp is stored using `serverTimestamp()`, ensuring consistency and reliability.\n*   The structure uses explicit state modeling with a `status` field in the `RecruitmentApplication` document, indicating the state of the application (e.g., `pending`, `reviewed`, `accepted`)."
+  }
+}
