@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Award, Terminal, Brain, Palette, ClipboardCheck, Handshake } from 'lucide-react';
+import { Award, Terminal, Brain, Palette, ClipboardCheck, Handshake, Megaphone } from 'lucide-react';
 import type { ApplicationSchema } from '@/lib/schema';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
@@ -21,10 +21,16 @@ const designQuestions = {
     c: "How would you design a poster for an AI workshop?"
 };
 
-const coreQuestions = {
-    a: "You're leading a project that's falling behind schedule. What are the first three steps you would take?",
-    b: "Describe a time you had to explain a complex topic to a non-technical audience. How did you approach it?",
-    c: "Propose an idea for a new workshop or event for the Turing Club. Outline the key objectives and target audience."
+const operationsQuestions = {
+    a: "Describe how you would plan and execute a 100-person workshop, from budget to feedback collection.",
+    b: "A key speaker for an event cancels last minute. What's your immediate action plan?",
+    c: "What tools would you use to keep track of tasks, timelines, and responsibilities for a team project?"
+};
+
+const publicRelationsQuestions = {
+    a: "How would you handle negative feedback about the club on social media?",
+    b: "Draft a short press release for an upcoming club event.",
+    c: "What strategies would you use to increase the club's visibility on campus?"
 };
 
 const outreachQuestions = {
@@ -36,7 +42,8 @@ const outreachQuestions = {
 
 const TECHNICAL_ROLES = ["Tech"];
 const DESIGN_ROLES = ["Design"];
-const CORE_ROLES = ["Core"];
+const OPERATIONS_ROLES = ["Operations"];
+const PUBLIC_RELATIONS_ROLES = ["Public Relations"];
 const OUTREACH_ROLES = ["Outreach"];
 
 export function Step3Experience() {
@@ -44,7 +51,8 @@ export function Step3Experience() {
   const selectedRoles = watch('roles', []);
   const showConceptualCheck = selectedRoles.some(role => TECHNICAL_ROLES.includes(role));
   const showDesignChallenge = selectedRoles.some(role => DESIGN_ROLES.includes(role));
-  const showCoreChallenge = selectedRoles.some(role => CORE_ROLES.includes(role));
+  const showOperationsChallenge = selectedRoles.some(role => OPERATIONS_ROLES.includes(role));
+  const showPublicRelationsChallenge = selectedRoles.some(role => PUBLIC_RELATIONS_ROLES.includes(role));
   const showOutreachChallenge = selectedRoles.some(role => OUTREACH_ROLES.includes(role));
 
   return (
@@ -214,17 +222,17 @@ export function Step3Experience() {
         </Card>
       )}
 
-      {showCoreChallenge && (
+      {showOperationsChallenge && (
         <Card className="bg-card/50 backdrop-blur-sm animate-fade-in">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ClipboardCheck className="text-primary" size={24} /> Situational Judgement
+              <ClipboardCheck className="text-primary" size={24} /> Operations Challenge
             </CardTitle>
           </CardHeader>
           <CardContent>
               <FormField
                   control={control}
-                  name="coreQuestionChoice"
+                  name="operationsQuestionChoice"
                   render={({ field }) => (
                       <FormItem className="space-y-3 mb-4">
                           <FormLabel>Choose a question to answer</FormLabel>
@@ -234,7 +242,7 @@ export function Step3Experience() {
                               defaultValue={field.value}
                               className="flex flex-col space-y-1"
                               >
-                                  {Object.entries(coreQuestions).map(([key, value]) => (
+                                  {Object.entries(operationsQuestions).map(([key, value]) => (
                                       <FormItem key={key} className="flex items-center space-x-3 space-y-0">
                                           <FormControl><RadioGroupItem value={key} /></FormControl>
                                           <FormLabel className="font-normal">{value}</FormLabel>
@@ -248,7 +256,60 @@ export function Step3Experience() {
               />
               <FormField
                   control={control}
-                  name="coreQuestionAnswer"
+                  name="operationsQuestionAnswer"
+                  render={({ field }) => (
+                  <FormItem>
+                      <FormLabel>Your Answer</FormLabel>
+                      <FormControl>
+                          <Textarea
+                              rows={3}
+                              placeholder="Explain your thought process..."
+                              {...field}
+                          />
+                      </FormControl>
+                      <FormMessage />
+                  </FormItem>
+                  )}
+              />
+          </CardContent>
+        </Card>
+      )}
+
+      {showPublicRelationsChallenge && (
+        <Card className="bg-card/50 backdrop-blur-sm animate-fade-in">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Megaphone className="text-primary" size={24} /> Public Relations Challenge
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+              <FormField
+                  control={control}
+                  name="publicRelationsQuestionChoice"
+                  render={({ field }) => (
+                      <FormItem className="space-y-3 mb-4">
+                          <FormLabel>Choose a question to answer</FormLabel>
+                          <FormControl>
+                              <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              className="flex flex-col space-y-1"
+                              >
+                                  {Object.entries(publicRelationsQuestions).map(([key, value]) => (
+                                      <FormItem key={key} className="flex items-center space-x-3 space-y-0">
+                                          <FormControl><RadioGroupItem value={key} /></FormControl>
+                                          <FormLabel className="font-normal">{value}</FormLabel>
+                                      </FormItem>
+                                  ))}
+                              </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )}
+              />
+              <FormField
+                  control={control}
+                  name="publicRelationsQuestionAnswer"
                   render={({ field }) => (
                   <FormItem>
                       <FormLabel>Your Answer</FormLabel>

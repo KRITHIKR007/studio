@@ -32,10 +32,12 @@ export const applicationSchema = z.object({
   skills: skillsSchema.partial(),
   designQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   designQuestionAnswer: z.string().optional(),
-  coreQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
-  coreQuestionAnswer: z.string().optional(),
+  operationsQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
+  operationsQuestionAnswer: z.string().optional(),
   outreachQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   outreachQuestionAnswer: z.string().optional(),
+  publicRelationsQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
+  publicRelationsQuestionAnswer: z.string().optional(),
 });
 
 export type ApplicationSchema = z.infer<typeof applicationSchema>;

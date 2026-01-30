@@ -25,8 +25,10 @@ const RankCandidatesInputSchema = z.object({
       techQuestionAnswer: z.string(),
       designQuestionChoice: z.string().optional(),
       designQuestionAnswer: z.string().optional(),
-      coreQuestionChoice: z.string().optional(),
-      coreQuestionAnswer: z.string().optional(),
+      publicRelationsQuestionChoice: z.string().optional(),
+      publicRelationsQuestionAnswer: z.string().optional(),
+      operationsQuestionChoice: z.string().optional(),
+      operationsQuestionAnswer: z.string().optional(),
       outreachQuestionChoice: z.string().optional(),
       outreachQuestionAnswer: z.string().optional(),
       motivation: z.string(),
@@ -71,10 +73,11 @@ const rankCandidatesPrompt = ai.definePrompt({
   output: {schema: RankCandidatesOutputSchema},
   prompt: `You are an expert recruiter and evaluator helping select members for a high-functioning, university-level AI/tech club. Your goal is to select people with an owner-mindset who can reliably run the club for a full year.
 
-The club has several role clusters. The candidate has applied for one or more of the following roles: Tech, Design, Core, Outreach. Here is how they map to our leadership structure:
+The club has several role clusters. The candidate has applied for one or more of the following roles: Tech, Design, Public Relations, Operations, Outreach. Here is how they map to our leadership structure:
 - **Tech Role** maps to **Technical Leadership** (Tech Lead, ML/AI Lead, Full-stack/Platform Lead).
 - **Design Role** maps to the design part of **Community & Growth Leadership** (Content & Design Lead).
-- **Core Role** maps to **Product & Program Leadership** (Product Lead, Events Lead) and **Operations & Governance** (President, General Secretary, Finance).
+- **Public Relations Role** maps to the PR part of **Community & Growth Leadership** (Content & PR Lead).
+- **Operations Role** maps to **Product & Program Leadership** (Events Lead) and **Operations & Governance** (President, General Secretary, Finance).
 - **Outreach Role** maps to the **Partnerships & Sponsorship Lead** part of **Community & Growth Leadership**.
 
 Your task is to analyze the provided candidate data and rank each candidate based on their fit for the roles they've applied for. Assign a score from 0 to 100 and provide your reasoning.
@@ -98,8 +101,13 @@ Your task is to analyze the provided candidate data and rank each candidate base
 
 ---
 
-**If the candidate applied for the 'Core' role:**
-- **Execution & Strategic Thinking:** Look for evidence of breaking down tasks, meeting deadlines, and strategic planning in their \`projects\`, \`experienceLevel\`, and \`coreQuestionAnswer\`. Skills like \`projectManagement\`, \`publicSpeaking\`, \`contentWriting\`, and \`eventManagement\` are highly relevant.
+**If the candidate applied for the 'Public Relations' role:**
+- **Communication & PR Strategy:** Assess their clarity, professionalism, and strategic thinking from their \`publicRelationsQuestionAnswer\`. Evaluate their writing and crisis management skills. Skills like \`publicSpeaking\` and \`contentWriting\` are key.
+
+---
+
+**If the candidate applied for the 'Operations' role:**
+- **Execution & Planning:** Look for evidence of project planning, problem-solving, and organizational skills in their \`projects\`, \`experienceLevel\`, and \`operationsQuestionAnswer\`. Skills like \`projectManagement\` and \`eventManagement\` are highly relevant.
 
 ---
 

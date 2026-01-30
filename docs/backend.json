@@ -66,13 +66,21 @@
           "type": "string",
           "description": "The applicant's answer to the chosen design question."
         },
-        "coreQuestionChoice": {
+        "publicRelationsQuestionChoice": {
           "type": "string",
-          "description": "The chosen core/situational question for the application."
+          "description": "The chosen public relations question for the application."
         },
-        "coreQuestionAnswer": {
+        "publicRelationsQuestionAnswer": {
           "type": "string",
-          "description": "The applicant's answer to the chosen core/situational question."
+          "description": "The applicant's answer to the chosen public relations question."
+        },
+        "operationsQuestionChoice": {
+          "type": "string",
+          "description": "The chosen operations question for the application."
+        },
+        "operationsQuestionAnswer": {
+          "type": "string",
+          "description": "The applicant's answer to the chosen operations question."
         },
         "outreachQuestionChoice": {
           "type": "string",

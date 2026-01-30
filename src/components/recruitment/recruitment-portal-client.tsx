@@ -63,10 +63,12 @@ export function RecruitmentPortalClient() {
       },
       designQuestionChoice: 'a',
       designQuestionAnswer: '',
-      coreQuestionChoice: 'a',
-      coreQuestionAnswer: '',
+      operationsQuestionChoice: 'a',
+      operationsQuestionAnswer: '',
       outreachQuestionChoice: 'a',
       outreachQuestionAnswer: '',
+      publicRelationsQuestionChoice: 'a',
+      publicRelationsQuestionAnswer: '',
     },
   });
 
