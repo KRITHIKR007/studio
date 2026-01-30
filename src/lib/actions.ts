@@ -9,28 +9,32 @@ export async function getRankedCandidates(applications: Application[]): Promise<
       return { success: true, data: [] };
     }
     
-    const candidateData: RankCandidatesInput['candidateData'] = applications.map(data => {
-      return {
-        fullName: data.fullName || '',
-        usn: data.usn || '',
-        department: data.department || '',
-        year: data.year || '',
-        roles: data.roles || [],
-        experienceLevel: data.experienceLevel || '',
-        projects: data.projects || '',
-        techQuestionChoice: data.techQuestionChoice || '',
-        techQuestionAnswer: data.techQuestionAnswer || '',
-        designQuestionChoice: data.designQuestionChoice || '',
-        designQuestionAnswer: data.designQuestionAnswer || '',
-        publicRelationsQuestionChoice: data.publicRelationsQuestionChoice || '',
-        publicRelationsQuestionAnswer: data.publicRelationsQuestionAnswer || '',
-        operationsQuestionChoice: data.operationsQuestionChoice || '',
-        operationsQuestionAnswer: data.operationsQuestionAnswer || '',
-        outreachQuestionChoice: data.outreachQuestionChoice || '',
-        outreachQuestionAnswer: data.outreachQuestionAnswer || '',
-        motivation: data.motivation || '',
-        skills: data.skills || {},
+    // Create a clean candidate data object for the AI, only including fields that have values.
+    const candidateData = applications.map((app): RankCandidatesInput['candidateData'][number] => {
+      const candidate: RankCandidatesInput['candidateData'][number] = {
+        fullName: app.fullName || '',
+        usn: app.usn || '',
+        department: app.department || '',
+        year: app.year || '',
+        roles: app.roles || [],
+        experienceLevel: app.experienceLevel || '',
+        motivation: app.motivation || '',
       };
+
+      if (app.projects) candidate.projects = app.projects;
+      if (app.skills) candidate.skills = app.skills;
+      if (app.techQuestionChoice) candidate.techQuestionChoice = app.techQuestionChoice;
+      if (app.techQuestionAnswer) candidate.techQuestionAnswer = app.techQuestionAnswer;
+      if (app.designQuestionChoice) candidate.designQuestionChoice = app.designQuestionChoice;
+      if (app.designQuestionAnswer) candidate.designQuestionAnswer = app.designQuestionAnswer;
+      if (app.publicRelationsQuestionChoice) candidate.publicRelationsQuestionChoice = app.publicRelationsQuestionChoice;
+      if (app.publicRelationsQuestionAnswer) candidate.publicRelationsQuestionAnswer = app.publicRelationsQuestionAnswer;
+      if (app.operationsQuestionChoice) candidate.operationsQuestionChoice = app.operationsQuestionChoice;
+      if (app.operationsQuestionAnswer) candidate.operationsQuestionAnswer = app.operationsQuestionAnswer;
+      if (app.outreachQuestionChoice) candidate.outreachQuestionChoice = app.outreachQuestionChoice;
+      if (app.outreachQuestionAnswer) candidate.outreachQuestionAnswer = app.outreachQuestionAnswer;
+      
+      return candidate;
     });
 
     const rankedCandidates = await rankCandidates({ candidateData });
