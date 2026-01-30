@@ -199,9 +199,9 @@ export function RecruitmentPortalClient() {
           <Image
             src="/logo.png"
             alt="Turing Club Logo"
-            width={24}
-            height={24}
-            className="rounded-full"
+            width={64}
+            height={64}
+            className="rounded-full bg-white"
           />
           <span className="font-bold text-primary tracking-wider ml-2">TURING CLUB RECRUITMENT 2025</span>
         </div>
