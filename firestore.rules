@@ -122,7 +122,10 @@ service cloud.firestore {
       allow list: if isSignedIn();
       allow create: if isCreatingOwnContent();
       allow update: if isExistingDocumentOwner() && ownerIdIsImmutable();
-      allow delete: if isExistingDocumentOwner();
+      // Allow any authenticated user to delete.
+      // This is for development purposes to allow an "admin" to clear test data.
+      // For production, this should be locked down to specific admin roles.
+      allow delete: if isSignedIn();
     }
   }
 }

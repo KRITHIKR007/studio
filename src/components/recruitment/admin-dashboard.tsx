@@ -1,14 +1,28 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Loader2, Database, Search, ArrowUp, ArrowDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Loader2, Database, Search, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { ApplicationCard } from './application-card';
 import { useApplications } from '@/hooks/use-applications';
 import { getRankedCandidates } from '@/lib/actions';
 import type { Application, RankedCandidate } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
+import { useFirestore } from '@/firebase';
+import { doc, deleteDoc } from 'firebase/firestore';
+import { firebaseConfig } from '@/firebase/config';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+
 
 type SortKey = 'createdAt' | 'rankingScore';
 type SortDirection = 'asc' | 'desc';
@@ -21,6 +35,9 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('createdAt');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const firestore = useFirestore();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     setRankedApplications(initialApplications);
@@ -56,6 +73,39 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
     setIsRanking(false);
   };
   
+  const handleClearData = async () => {
+    if (!firestore || initialApplications.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not clear data. Database not available or no applications to clear.',
+      });
+      return;
+    }
+    setIsDeleting(true);
+    try {
+      const deletePromises = initialApplications.map(app => {
+        const docRef = doc(firestore, 'artifacts', firebaseConfig.appId, 'public', 'data', 'recruitment_applications', app.id);
+        return deleteDoc(docRef);
+      });
+      await Promise.all(deletePromises);
+      toast({
+        title: 'Data Cleared',
+        description: `Successfully deleted ${initialApplications.length} applications.`,
+      });
+    } catch (error) {
+      console.error("Error clearing data:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Deletion Failed',
+        description: 'An error occurred while clearing the applications.',
+      });
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
   const filteredAndSortedApplications = useMemo(() => {
     let apps = [...rankedApplications];
     
@@ -123,6 +173,14 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
             )}
             {isRanking ? 'Ranking...' : 'Rank Candidates with AI'}
           </Button>
+          <Button
+            variant="destructive"
+            onClick={() => setShowDeleteConfirm(true)}
+            disabled={isDeleting || applicationsLoading || initialApplications.length === 0}
+          >
+            {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+            Clear Data
+          </Button>
           <Button onClick={onExit} variant="link">Exit Admin</Button>
         </div>
       </div>
@@ -161,6 +219,28 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
           ))}
         </div>
       )}
+
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete all {initialApplications.length} applications from the database.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleClearData}
+              disabled={isDeleting}
+              className={buttonVariants({ variant: "destructive" })}
+            >
+              {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isDeleting ? 'Deleting...' : 'Yes, delete all'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
