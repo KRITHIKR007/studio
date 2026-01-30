@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Cpu, Lock, Send, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
+import { Lock, Send, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { applicationSchema, type ApplicationSchema } from '@/lib/schema';
 import { Step1PersonalDetails } from './step1-personal-details';
@@ -195,7 +196,14 @@ export function RecruitmentPortalClient() {
     <div className="max-w-3xl mx-auto p-4 md:p-8">
       <header className="mb-8 text-center space-y-2 relative">
         <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-xl mb-4 border border-primary/20">
-          <Cpu className="text-primary" />
+          <Image
+            src="https://picsum.photos/seed/turingclub/24/24"
+            alt="Turing Club Logo"
+            width={24}
+            height={24}
+            className="rounded-full"
+            data-ai-hint="tech logo"
+          />
           <span className="font-bold text-primary tracking-wider ml-2">TURING CLUB RECRUITMENT 2025</span>
         </div>
         <h1 className="text-3xl md:text-4xl font-bold text-foreground">Turing Club Application</h1>
