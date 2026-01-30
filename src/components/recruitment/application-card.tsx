@@ -20,11 +20,13 @@ const ConceptualCheck = ({
   choice,
   answer,
   questions,
+  isLink = false,
 }: {
   title: string;
   choice?: string;
   answer?: string;
   questions: Record<string, string>;
+  isLink?: boolean;
 }) => {
   if (!answer || !choice || answer.trim() === '') {
     return null;
@@ -36,9 +38,15 @@ const ConceptualCheck = ({
         <p className="font-semibold text-foreground mb-2">
           Q: {questions[choice]}
         </p>
-        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-          {answer}
-        </p>
+        {isLink ? (
+          <a href={answer} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline break-all">
+            {answer}
+          </a>
+        ) : (
+          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+            {answer}
+          </p>
+        )}
       </AccordionContent>
     </AccordionItem>
   );
@@ -86,13 +94,14 @@ export function ApplicationCard({ application: app }: { application: Application
               )}
               
               <ConceptualCheck
-                title="Conceptual Check (Tech)"
+                title="Take-Home Coding Challenge (Tech)"
                 choice={app.techQuestionChoice}
                 answer={app.techQuestionAnswer}
+                isLink={true}
                 questions={{
-                  'a': "Outline the pseudocode for a basic Q-Learning agent. What are the key components you'd need to implement?",
-                  'b': "Describe the architecture of a simple distributed task queue for an AI workload. What are the core components?",
-                  'c': "How would you build a basic Retrieval-Augmented Generation (RAG) pipeline? Describe the main stages from query to answer."
+                  'a': "Implement a Q-Learning agent from scratch to solve a simple environment, or optimize a pre-trained model for a specific edge case.",
+                  'b': "Set up a basic distributed task queue or a containerized environment that can handle a mock AI workload.",
+                  'c': "Build a retrieval-augmented generation (RAG) pipeline that uses a Knowledge Graph to answer complex queries."
                 }}
               />
               

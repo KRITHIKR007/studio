@@ -39,12 +39,30 @@ export const applicationSchema = z.object({
   outreachQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   outreachQuestionAnswer: z.string().optional(),
 }).superRefine((data, ctx) => {
-    if (data.roles.includes('Tech') && (!data.techQuestionAnswer || data.techQuestionAnswer.trim() === '')) {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Answer for Tech role is required.',
-            path: ['techQuestionAnswer'],
-        });
+    if (data.roles.includes('Tech')) {
+        if (!data.techQuestionChoice) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Please choose a take-home assignment.',
+                path: ['techQuestionChoice'],
+            });
+        }
+        if (!data.techQuestionAnswer || data.techQuestionAnswer.trim() === '') {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'A link to your Git repository is required.',
+                path: ['techQuestionAnswer'],
+            });
+        } else {
+             const urlCheck = z.string().url("Please provide a valid URL to your Git repository.").safeParse(data.techQuestionAnswer);
+             if (!urlCheck.success) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: urlCheck.error.issues[0].message,
+                    path: ['techQuestionAnswer'],
+                });
+             }
+        }
     }
     if (data.roles.includes('Design') && (!data.designQuestionAnswer || data.designQuestionAnswer.trim() === '')) {
         ctx.addIssue({

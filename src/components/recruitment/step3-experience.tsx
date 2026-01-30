@@ -8,11 +8,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Award, Terminal, Brain, Palette, ClipboardCheck, Megaphone, Contact } from 'lucide-react';
 import type { ApplicationSchema } from '@/lib/schema';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Input } from '@/components/ui/input';
 
 const techQuestions = {
-    a: "Outline the pseudocode for a basic Q-Learning agent. What are the key components you'd need to implement?",
-    b: "Describe the architecture of a simple distributed task queue for an AI workload. What are the core components?",
-    c: "How would you build a basic Retrieval-Augmented Generation (RAG) pipeline? Describe the main stages from query to answer."
+    a: "Implement a Q-Learning agent from scratch to solve a simple environment, or optimize a pre-trained model for a specific edge case.",
+    b: "Set up a basic distributed task queue or a containerized environment that can handle a mock AI workload.",
+    c: "Build a retrieval-augmented generation (RAG) pipeline that uses a Knowledge Graph to answer complex queries."
 };
 
 const designQuestions = {
@@ -119,16 +120,19 @@ export function Step3Experience() {
         <Card className="bg-card/50 backdrop-blur-sm animate-fade-in">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Brain className="text-primary" size={24} /> Conceptual Check
+              <Brain className="text-primary" size={24} /> Take-Home Coding Challenge
             </CardTitle>
+            <CardDescription>
+                Choose one of the following assignments. Submit a link to a public Git repository (e.g., GitHub, GitLab) with your solution. Your repo should include a README with setup and execution instructions.
+            </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
               <FormField
                   control={control}
                   name="techQuestionChoice"
                   render={({ field }) => (
-                      <FormItem className="space-y-3 mb-4">
-                          <FormLabel>Choose a question to answer</FormLabel>
+                      <FormItem className="space-y-3">
+                          <FormLabel>Choose your assignment</FormLabel>
                           <FormControl>
                               <RadioGroup
                               onValueChange={field.onChange}
@@ -152,11 +156,10 @@ export function Step3Experience() {
                   name="techQuestionAnswer"
                   render={({ field }) => (
                   <FormItem>
-                      <FormLabel>Your Answer</FormLabel>
+                      <FormLabel>Git Repository Link</FormLabel>
                       <FormControl>
-                          <Textarea
-                              rows={3}
-                              placeholder="Explain simply..."
+                          <Input
+                              placeholder="https://github.com/your-username/repo-name"
                               {...field}
                           />
                       </FormControl>
