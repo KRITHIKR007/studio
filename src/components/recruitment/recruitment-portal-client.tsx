@@ -29,6 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
 
 
 export function RecruitmentPortalClient() {
@@ -42,6 +43,9 @@ export function RecruitmentPortalClient() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [validatedData, setValidatedData] = useState<ApplicationSchema | null>(null);
   const { toast } = useToast();
+
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
 
   const methods = useForm<ApplicationSchema>({
     resolver: zodResolver(applicationSchema),
@@ -172,6 +176,21 @@ export function RecruitmentPortalClient() {
     }
   };
 
+  const handleAdminLogin = () => {
+    if (adminPassword === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
+        setShowAdmin(true);
+        setShowAdminLogin(false);
+        setAdminPassword('');
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Access Denied",
+            description: "The password you entered is incorrect.",
+        });
+        setAdminPassword('');
+    }
+  };
+
 
   if (isUserLoading) {
     return (
@@ -214,7 +233,7 @@ export function RecruitmentPortalClient() {
         </div>
         <h1 className="text-3xl md:text-4xl font-bold text-foreground">Turing Club Application</h1>
         <Button
-          onClick={() => setShowAdmin(true)}
+          onClick={() => setShowAdminLogin(true)}
           className="absolute top-0 right-0"
           variant="ghost"
           size="icon"
@@ -268,6 +287,37 @@ export function RecruitmentPortalClient() {
             <AlertDialogAction onClick={handleConfirmedSubmit} disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isSubmitting ? 'Submitting...' : 'Submit'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showAdminLogin} onOpenChange={setShowAdminLogin}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Admin Access</AlertDialogTitle>
+            <AlertDialogDescription>
+              Please enter the admin password to view the dashboard.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-2">
+            <Input
+              type="password"
+              placeholder="Password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAdminLogin();
+                }
+              }}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setAdminPassword('')}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleAdminLogin}>
+              Enter
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
