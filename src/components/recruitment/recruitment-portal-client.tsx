@@ -48,8 +48,8 @@ export function RecruitmentPortalClient() {
     defaultValues: {
       fullName: '',
       usn: '',
-      department: 'CSE',
-      year: '1st Year',
+      department: '',
+      year: '',
       phone: '',
       email: '',
       roles: [],
@@ -82,6 +82,7 @@ export function RecruitmentPortalClient() {
       publicRelationsQuestionChoice: 'a',
       publicRelationsQuestionAnswer: '',
     },
+    mode: 'onTouched',
   });
 
   useEffect(() => {
@@ -101,7 +102,7 @@ export function RecruitmentPortalClient() {
   const nextStep = async () => {
     const fieldsToValidate: (keyof ApplicationSchema)[][] = [
         ['fullName', 'usn', 'department', 'year', 'email', 'phone'],
-        ['roles']
+        ['roles', 'skills', 'experienceLevel'],
     ];
     
     const fieldsForStep = fieldsToValidate[step-1] || [];

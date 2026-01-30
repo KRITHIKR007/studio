@@ -17,18 +17,18 @@ export const skillsSchema = z.object({
 });
 
 export const applicationSchema = z.object({
-  fullName: z.string().optional(),
-  usn: z.string().trim().optional(),
-  department: z.string().optional(),
-  year: z.string().optional(),
-  email: z.string().email("Invalid email address").or(z.literal('')).optional(),
-  phone: z.string().optional(),
-  roles: z.array(z.string()).default([]),
-  experienceLevel: z.string().optional(),
+  fullName: z.string().min(1, { message: "Full name is required." }),
+  usn: z.string().trim().min(1, { message: "USN / ID is required." }),
+  department: z.string().min(1, { message: "Please select a department." }),
+  year: z.string().min(1, { message: "Please select your year." }),
+  email: z.string().email("Invalid email address."),
+  phone: z.string().min(1, { message: "Phone number is required." }),
+  roles: z.array(z.string()).min(1, { message: "Please select at least one role." }),
+  experienceLevel: z.string().min(1, { message: "Please select your experience level." }),
   projects: z.string().optional(),
   techQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   techQuestionAnswer: z.string().optional(),
-  motivation: z.string().optional(),
+  motivation: z.string().min(10, { message: "Motivation must be at least 10 characters." }),
   skills: skillsSchema.partial(),
   designQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   designQuestionAnswer: z.string().optional(),
@@ -38,6 +38,43 @@ export const applicationSchema = z.object({
   outreachQuestionAnswer: z.string().optional(),
   publicRelationsQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   publicRelationsQuestionAnswer: z.string().optional(),
+}).superRefine((data, ctx) => {
+    if (data.roles.includes('Tech') && (!data.techQuestionAnswer || data.techQuestionAnswer.trim().length === 0)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Answer to technical question is required.',
+            path: ['techQuestionAnswer'],
+        });
+    }
+    if (data.roles.includes('Design') && (!data.designQuestionAnswer || data.designQuestionAnswer.trim().length === 0)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Answer to design question is required.',
+            path: ['designQuestionAnswer'],
+        });
+    }
+    if (data.roles.includes('Operations') && (!data.operationsQuestionAnswer || data.operationsQuestionAnswer.trim().length === 0)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Answer to operations question is required.',
+            path: ['operationsQuestionAnswer'],
+        });
+    }
+    if (data.roles.includes('Outreach') && (!data.outreachQuestionAnswer || data.outreachQuestionAnswer.trim().length === 0)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Answer to outreach question is required.',
+            path: ['outreachQuestionAnswer'],
+        });
+    }
+    if (data.roles.includes('Public Relations') && (!data.publicRelationsQuestionAnswer || data.publicRelationsQuestionAnswer.trim().length === 0)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Answer to public relations question is required.',
+            path: ['publicRelationsQuestionAnswer'],
+        });
+    }
 });
+
 
 export type ApplicationSchema = z.infer<typeof applicationSchema>;
