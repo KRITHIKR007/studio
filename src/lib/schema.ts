@@ -17,18 +17,18 @@ export const skillsSchema = z.object({
 });
 
 export const applicationSchema = z.object({
-  fullName: z.string().trim(),
-  usn: z.string().trim(),
-  department: z.string().trim(),
-  year: z.string().trim(),
-  email: z.string().email("Invalid email address.").or(z.literal('')),
-  phone: z.string().trim(),
-  roles: z.array(z.string()).default([]),
-  experienceLevel: z.string().trim(),
+  fullName: z.string().trim().min(1, 'Full name is required.'),
+  usn: z.string().trim().min(1, 'USN is required.'),
+  department: z.string().trim().min(1, 'Department is required.'),
+  year: z.string().trim().min(1, 'Year is required.'),
+  email: z.string().min(1, "Email is required.").email("Invalid email address."),
+  phone: z.string().trim().min(1, 'Phone number is required.'),
+  roles: z.array(z.string()).min(1, 'Please select at least one role.'),
+  experienceLevel: z.string().trim().min(1, 'Please select your experience level.'),
   projects: z.string().optional(),
   techQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   techQuestionAnswer: z.string().optional(),
-  motivation: z.string().trim(),
+  motivation: z.string().trim().min(1, 'Please tell us your motivation.'),
   skills: skillsSchema.partial(),
   designQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   designQuestionAnswer: z.string().optional(),
@@ -38,34 +38,6 @@ export const applicationSchema = z.object({
   publicRelationsQuestionAnswer: z.string().optional(),
   outreachQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   outreachQuestionAnswer: z.string().optional(),
-}).superRefine((data, ctx) => {
-    if (!data.fullName) {
-      ctx.addIssue({ code: 'custom', message: 'Full name is required.', path: ['fullName'] });
-    }
-    if (!data.usn) {
-      ctx.addIssue({ code: 'custom', message: 'USN is required.', path: ['usn'] });
-    }
-    if (!data.department) {
-      ctx.addIssue({ code: 'custom', message: 'Department is required.', path: ['department'] });
-    }
-    if (!data.year) {
-      ctx.addIssue({ code: 'custom', message: 'Year is required.', path: ['year'] });
-    }
-    if (!data.email) {
-      ctx.addIssue({ code: 'custom', message: 'Email is required.', path: ['email'] });
-    }
-    if (!data.phone) {
-      ctx.addIssue({ code: 'custom', message: 'Phone number is required.', path: ['phone'] });
-    }
-    if (data.roles.length === 0) {
-      ctx.addIssue({ code: 'custom', message: 'Please select at least one role.', path: ['roles'] });
-    }
-    if (!data.experienceLevel) {
-      ctx.addIssue({ code: 'custom', message: 'Please select your experience level.', path: ['experienceLevel'] });
-    }
-    if (!data.motivation) {
-      ctx.addIssue({ code: 'custom', message: 'Please tell us your motivation.', path: ['motivation'] });
-    }
 });
 
 
