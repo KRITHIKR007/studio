@@ -196,9 +196,9 @@ export function RecruitmentPortalClient() {
       <header className="mb-8 text-center space-y-2 relative">
         <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-xl mb-4 border border-primary/20">
           <Cpu className="text-primary" />
-          <span className="font-bold text-primary tracking-wider ml-2">AI CLUB RECRUITMENT 2025</span>
+          <span className="font-bold text-primary tracking-wider ml-2">TURING CLUB RECRUITMENT 2025</span>
         </div>
-        <h1 className="text-3xl md:text-4xl font-bold text-foreground">Engineering Track Application</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-foreground">Turing Club Application</h1>
         <Button
           onClick={() => setShowAdmin(true)}
           className="absolute top-0 right-0"
@@ -242,7 +242,7 @@ export function RecruitmentPortalClient() {
       </FormProvider>
 
       <footer className="text-center text-muted-foreground text-sm pb-8">
-        &copy; 2025 AI Club Engineering Team. Securely powered by Firebase.
+        &copy; 2025 Turing Club. Securely powered by Firebase.
       </footer>
     </div>
   );

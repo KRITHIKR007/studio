@@ -4,8 +4,8 @@ import './globals.css';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
-  title: 'AI Club Recruitment Hub',
-  description: 'Engineering Track Application for the AI Club',
+  title: 'Turing Club Recruitment Hub',
+  description: 'Turing Club Application',
 };
 
 export default function RootLayout({

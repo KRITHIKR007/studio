@@ -24,7 +24,7 @@ const designQuestions = {
 const coreQuestions = {
     a: "You're leading a project that's falling behind schedule. What are the first three steps you would take?",
     b: "Describe a time you had to explain a complex topic to a non-technical audience. How did you approach it?",
-    c: "Propose an idea for a new workshop or event for the AI Club. Outline the key objectives and target audience."
+    c: "Propose an idea for a new workshop or event for the Turing Club. Outline the key objectives and target audience."
 };
 
 const outreachQuestions = {
