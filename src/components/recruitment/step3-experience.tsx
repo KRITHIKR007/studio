@@ -11,8 +11,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const techQuestions = {
     a: "What is overfitting and how do you fight it?",
-    b: "What is the difference between Transformers and RNNs?",
-    c: "Why do we need Batch Normalization?"
+    b: "Difference between Transformers and RNNs?",
+    c: "Write pseudocode for a function `rank(candidates)` that sorts applicants by experience and skills. Explain your logic."
 };
 
 const designQuestions = {

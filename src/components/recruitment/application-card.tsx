@@ -92,7 +92,7 @@ export function ApplicationCard({ application: app }: { application: Application
                 questions={{
                   'a': 'What is overfitting and how do you fight it?',
                   'b': 'Difference between Transformers and RNNs?',
-                  'c': 'Why do we need Batch Normalization?'
+                  'c': "Write pseudocode for a function `rank(candidates)` that sorts applicants by experience and skills. Explain your logic."
                 }}
               />
               
