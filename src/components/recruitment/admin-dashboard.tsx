@@ -1,12 +1,26 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Loader2, Database, Search, ArrowUp, ArrowDown, Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Loader2, Database, Search, ArrowUp, ArrowDown, Download, Trash2 } from 'lucide-react';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { ApplicationCard } from './application-card';
 import { useApplications } from '@/hooks/use-applications';
 import { Input } from '@/components/ui/input';
 import type { Application } from '@/lib/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useFirestore } from '@/firebase';
+import { useToast } from '@/hooks/use-toast';
+import { writeBatch, doc } from 'firebase/firestore';
+import { firebaseConfig } from '@/firebase/config';
 
 type SortKey = 'createdAt';
 type SortDirection = 'asc' | 'desc';
@@ -16,6 +30,10 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('createdAt');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
+  const firestore = useFirestore();
+  const { toast } = useToast();
 
   const filteredAndSortedApplications: Application[] = useMemo(() => {
     let apps = [...initialApplications];
@@ -138,6 +156,36 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
+  
+  const handleClearData = async () => {
+    if (!firestore || initialApplications.length === 0) return;
+
+    setIsClearing(true);
+    try {
+      // Firestore limits batch writes to 500 documents.
+      // If you expect more, this would need to be split into multiple batches.
+      const batch = writeBatch(firestore);
+      initialApplications.forEach(app => {
+        const docRef = doc(firestore, 'artifacts', firebaseConfig.appId, 'public', 'data', 'recruitment_applications', app.id);
+        batch.delete(docRef);
+      });
+      await batch.commit();
+      toast({
+        title: 'Success',
+        description: 'All application data has been cleared.',
+      });
+    } catch (error) {
+      console.error("Error clearing data: ", error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not clear application data. Please try again.',
+      });
+    } finally {
+      setIsClearing(false);
+      setShowClearConfirm(false);
+    }
+  };
 
   const SortButton = ({ K, label }: { K: SortKey, label: string}) => (
     <Button variant={sortKey === K ? 'secondary' : 'ghost'} onClick={() => toggleSort(K)}>
@@ -157,6 +205,10 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
           <Button onClick={handleDownloadCsv} variant="outline" disabled={applicationsLoading || filteredAndSortedApplications.length === 0}>
               <Download className="mr-2 h-4 w-4" />
               Download CSV
+          </Button>
+          <Button onClick={() => setShowClearConfirm(true)} variant="destructive" disabled={applicationsLoading || initialApplications.length === 0}>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Clear Data
           </Button>
           <Button onClick={onExit} variant="link">Exit Admin</Button>
         </div>
@@ -195,6 +247,25 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
           ))}
         </div>
       )}
+
+      <AlertDialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete all
+              {initialApplications.length > 0 && ` ${initialApplications.length}`} applications from the database.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClearData} disabled={isClearing} className={buttonVariants({ variant: "destructive" })}>
+              {isClearing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+              {isClearing ? 'Clearing...' : 'Yes, Clear Data'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
