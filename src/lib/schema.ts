@@ -19,7 +19,7 @@ export const skillsSchema = z.object({
 export const applicationSchema = z.object({
   fullName: z.string().min(1, { message: "Full name is required." }),
   usn: z.string().trim().min(1, { message: "USN / ID is required." }),
-  department: z.string().min(1, { message: "Please select a department." }),
+  department: z.string().min(1, { message: "Please enter your department." }),
   year: z.string().min(1, { message: "Please select your year." }),
   email: z.string().email("Invalid email address."),
   phone: z.string().min(1, { message: "Phone number is required." }),

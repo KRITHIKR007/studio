@@ -186,7 +186,7 @@ export function Step2RoleAndSkills() {
         <Card className="bg-card/50 backdrop-blur-sm animate-fade-in">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Megaphone className="text-primary" size={24} /> Public Relations Skills
+              <Megaphone className="text-primary" size={24} /> Public Relations & Outreach Skills
             </CardTitle>
           </CardHeader>
           <CardContent>

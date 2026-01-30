@@ -183,8 +183,8 @@ export function RecruitmentPortalClient() {
   };
   
   const handlePreSubmit = (data: ApplicationSchema) => {
-    setValidatedData(data);
     setShowConfirmDialog(true);
+    setValidatedData(data);
   };
 
   const handleConfirmedSubmit = async () => {
