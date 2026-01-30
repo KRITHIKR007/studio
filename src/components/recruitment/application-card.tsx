@@ -52,8 +52,34 @@ const ConceptualCheck = ({
   );
 };
 
+const beginnerTechQuestions = {
+    a: "Implement a Breadth-First Search (BFS) or Depth-First Search (DFS) algorithm in your preferred language to find a path in a given maze (represented as a 2D array).",
+    b: "Build a simple command-line tool that fetches data from a public API (e.g., the GitHub API to get user repos) and displays it in a user-friendly format.",
+    c: "Write a script to scrape the headlines from a news website (like BBC News) and save them to a CSV file."
+};
+
+const intermediateTechQuestions = {
+    a: "Develop a simple REST API (using Flask, FastAPI, or Express.js) that serves predictions from a pre-trained machine learning model (you can use a simple model from scikit-learn).",
+    b: "Build and containerize a simple data processing pipeline using Docker. The pipeline should read a CSV, perform a simple transformation (e.g., filter rows), and write the output to a new file.",
+    c: "Create a basic chatbot using rule-based logic or a simple NLP library that can answer questions about a specific topic (e.g., your university)."
+};
+
+const advancedTechQuestions = {
+    a: "Implement a Q-Learning agent from scratch to solve a simple environment, or optimize a pre-trained model for a specific edge case.",
+    b: "Set up a basic distributed task queue or a containerized environment that can handle a mock AI workload.",
+    c: "Build a retrieval-augmented generation (RAG) pipeline that uses a Knowledge Graph to answer complex queries."
+};
+
+const allTechQuestions = {
+    'Beginner': beginnerTechQuestions,
+    'Intermediate': intermediateTechQuestions,
+    'Advanced': advancedTechQuestions,
+    'Research/Expert': advancedTechQuestions
+};
 
 export function ApplicationCard({ application: app }: { application: Application }) {
+  const techQuestionsForCard = allTechQuestions[app.experienceLevel as keyof typeof allTechQuestions] || advancedTechQuestions;
+  
   return (
     <Card className="flex flex-col">
       <CardHeader>
@@ -98,11 +124,7 @@ export function ApplicationCard({ application: app }: { application: Application
                 choice={app.techQuestionChoice}
                 answer={app.techQuestionAnswer}
                 isLink={true}
-                questions={{
-                  'a': "Implement a Q-Learning agent from scratch to solve a simple environment, or optimize a pre-trained model for a specific edge case.",
-                  'b': "Set up a basic distributed task queue or a containerized environment that can handle a mock AI workload.",
-                  'c': "Build a retrieval-augmented generation (RAG) pipeline that uses a Knowledge Graph to answer complex queries."
-                }}
+                questions={techQuestionsForCard}
               />
               
               <ConceptualCheck

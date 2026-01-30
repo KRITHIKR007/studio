@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
@@ -10,7 +11,19 @@ import type { ApplicationSchema } from '@/lib/schema';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
 
-const techQuestions = {
+const beginnerTechQuestions = {
+    a: "Implement a Breadth-First Search (BFS) or Depth-First Search (DFS) algorithm in your preferred language to find a path in a given maze (represented as a 2D array).",
+    b: "Build a simple command-line tool that fetches data from a public API (e.g., the GitHub API to get user repos) and displays it in a user-friendly format.",
+    c: "Write a script to scrape the headlines from a news website (like BBC News) and save them to a CSV file."
+};
+
+const intermediateTechQuestions = {
+    a: "Develop a simple REST API (using Flask, FastAPI, or Express.js) that serves predictions from a pre-trained machine learning model (you can use a simple model from scikit-learn).",
+    b: "Build and containerize a simple data processing pipeline using Docker. The pipeline should read a CSV, perform a simple transformation (e.g., filter rows), and write the output to a new file.",
+    c: "Create a basic chatbot using rule-based logic or a simple NLP library that can answer questions about a specific topic (e.g., your university)."
+};
+
+const advancedTechQuestions = {
     a: "Implement a Q-Learning agent from scratch to solve a simple environment, or optimize a pre-trained model for a specific edge case.",
     b: "Set up a basic distributed task queue or a containerized environment that can handle a mock AI workload.",
     c: "Build a retrieval-augmented generation (RAG) pipeline that uses a Knowledge Graph to answer complex queries."
@@ -47,8 +60,30 @@ const PUBLIC_RELATIONS_ROLES = ["Public Relations"];
 const OUTREACH_ROLES = ["Outreach"];
 
 export function Step3Experience() {
-  const { control, watch } = useFormContext<ApplicationSchema>();
+  const { control, watch, setValue } = useFormContext<ApplicationSchema>();
+  const experienceLevel = watch('experienceLevel');
   const selectedRoles = watch('roles', []);
+
+  useEffect(() => {
+    setValue('techQuestionChoice', 'a');
+    setValue('techQuestionAnswer', '');
+  }, [experienceLevel, setValue]);
+
+  const getTechQuestions = (level: string | undefined) => {
+    switch(level) {
+        case 'Beginner':
+            return beginnerTechQuestions;
+        case 'Intermediate':
+            return intermediateTechQuestions;
+        case 'Advanced':
+        case 'Research/Expert':
+            return advancedTechQuestions;
+        default:
+            return null;
+    }
+  }
+
+  const techQuestions = getTechQuestions(experienceLevel);
   const showConceptualCheck = selectedRoles.some(role => TECHNICAL_ROLES.includes(role));
   const showDesignChallenge = selectedRoles.some(role => DESIGN_ROLES.includes(role));
   const showOperationsChallenge = selectedRoles.some(role => OPERATIONS_ROLES.includes(role));
@@ -78,7 +113,7 @@ export function Step3Experience() {
                     <SelectItem value="Beginner">Beginner (Intro course completed)</SelectItem>
                     <SelectItem value="Intermediate">Intermediate (Built 2-5 personal projects)</SelectItem>
                     <SelectItem value="Advanced">Advanced (End-to-end projects, deployed models)</SelectItem>
-                    <SelectItem value="Research">Research/Expert (Publications, SOTA impl)</SelectItem>
+                    <SelectItem value="Research/Expert">Research/Expert (Publications, SOTA impl)</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -123,50 +158,58 @@ export function Step3Experience() {
               <Brain className="text-primary" size={24} /> Take-Home Coding Challenge
             </CardTitle>
             <CardDescription>
-                Choose one of the following assignments. Submit a link to a public Git repository (e.g., GitHub, GitLab) with your solution. Your repo should include a README with setup and execution instructions.
+                Your assignment is based on your selected experience level. Choose one of the following. Submit a link to a public Git repository with your solution and a README.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-              <FormField
-                  control={control}
-                  name="techQuestionChoice"
-                  render={({ field }) => (
-                      <FormItem className="space-y-3">
-                          <FormLabel>Choose your assignment</FormLabel>
+              {!techQuestions ? (
+                <div className="text-sm text-muted-foreground p-4 text-center border border-dashed rounded-md">
+                    Please select your experience level first to see the assignments.
+                </div>
+              ) : (
+                <>
+                  <FormField
+                      control={control}
+                      name="techQuestionChoice"
+                      render={({ field }) => (
+                          <FormItem className="space-y-3">
+                              <FormLabel>Choose your assignment ({experienceLevel})</FormLabel>
+                              <FormControl>
+                                  <RadioGroup
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                  className="flex flex-col space-y-1"
+                                  >
+                                      {Object.entries(techQuestions).map(([key, value]) => (
+                                          <FormItem key={key} className="flex items-center space-x-3 space-y-0">
+                                              <FormControl><RadioGroupItem value={key} /></FormControl>
+                                              <FormLabel className="font-normal">{value}</FormLabel>
+                                          </FormItem>
+                                      ))}
+                                  </RadioGroup>
+                              </FormControl>
+                              <FormMessage />
+                          </FormItem>
+                      )}
+                  />
+                  <FormField
+                      control={control}
+                      name="techQuestionAnswer"
+                      render={({ field }) => (
+                      <FormItem>
+                          <FormLabel>Git Repository Link</FormLabel>
                           <FormControl>
-                              <RadioGroup
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              className="flex flex-col space-y-1"
-                              >
-                                  {Object.entries(techQuestions).map(([key, value]) => (
-                                      <FormItem key={key} className="flex items-center space-x-3 space-y-0">
-                                          <FormControl><RadioGroupItem value={key} /></FormControl>
-                                          <FormLabel className="font-normal">{value}</FormLabel>
-                                      </FormItem>
-                                  ))}
-                              </RadioGroup>
+                              <Input
+                                  placeholder="https://github.com/your-username/repo-name"
+                                  {...field}
+                              />
                           </FormControl>
                           <FormMessage />
                       </FormItem>
-                  )}
-              />
-              <FormField
-                  control={control}
-                  name="techQuestionAnswer"
-                  render={({ field }) => (
-                  <FormItem>
-                      <FormLabel>Git Repository Link</FormLabel>
-                      <FormControl>
-                          <Input
-                              placeholder="https://github.com/your-username/repo-name"
-                              {...field}
-                          />
-                      </FormControl>
-                      <FormMessage />
-                  </FormItem>
-                  )}
-              />
+                      )}
+                  />
+                </>
+              )}
           </CardContent>
         </Card>
       )}
