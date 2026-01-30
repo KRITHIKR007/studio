@@ -41,7 +41,7 @@ export function Step1PersonalDetails() {
               <FormItem>
                 <FormLabel>USN / ID</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g., 1RV23CS001" {...field} />
+                  <Input placeholder="e.g., 23Btrcl000" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
