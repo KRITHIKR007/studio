@@ -220,11 +220,7 @@ export function RecruitmentPortalClient() {
   }
 
   if (submitted) {
-    return <SubmissionSuccess onReset={() => {
-        setSubmitted(false);
-        setStep(1);
-        methods.reset();
-    }} />;
+    return <SubmissionSuccess submittedData={validatedData} />;
   }
 
   const steps = [
