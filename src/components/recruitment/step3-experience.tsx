@@ -10,9 +10,9 @@ import type { ApplicationSchema } from '@/lib/schema';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const techQuestions = {
-    a: "What is overfitting and how do you fight it?",
-    b: "Difference between Transformers and RNNs?",
-    c: "Write pseudocode for a function `rank(candidates)` that sorts applicants by experience and skills. Explain your logic."
+    a: "Outline the pseudocode for a basic Q-Learning agent. What are the key components you'd need to implement?",
+    b: "Describe the architecture of a simple distributed task queue for an AI workload. What are the core components?",
+    c: "How would you build a basic Retrieval-Augmented Generation (RAG) pipeline? Describe the main stages from query to answer."
 };
 
 const designQuestions = {
