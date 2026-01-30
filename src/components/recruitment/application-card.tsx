@@ -15,6 +15,36 @@ function SkillPill({ label, value }: {label: string, value: string}) {
     return <Badge variant="outline" className={`capitalize ${colorClass}`}>{label}</Badge>
 }
 
+const ConceptualCheck = ({
+  title,
+  choice,
+  answer,
+  questions,
+}: {
+  title: string;
+  choice?: string;
+  answer?: string;
+  questions: Record<string, string>;
+}) => {
+  if (!answer || !choice || answer.trim() === '') {
+    return null;
+  }
+  return (
+    <AccordionItem value={title.toLowerCase().replace(/\s/g, '-')}>
+      <AccordionTrigger className="text-sm">{title}</AccordionTrigger>
+      <AccordionContent>
+        <p className="font-semibold text-foreground mb-2">
+          Q: {questions[choice]}
+        </p>
+        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+          {answer}
+        </p>
+      </AccordionContent>
+    </AccordionItem>
+  );
+};
+
+
 export function ApplicationCard({ application: app }: { application: Application }) {
   return (
     <Card className="flex flex-col">
@@ -60,25 +90,68 @@ export function ApplicationCard({ application: app }: { application: Application
                     <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap">{app.reasoning}</AccordionContent>
                 </AccordionItem>
               )}
-              <AccordionItem value="projects">
-                <AccordionTrigger className="text-sm">Projects</AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap font-mono">{app.projects}</AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="question">
-                <AccordionTrigger className="text-sm">Conceptual Check</AccordionTrigger>
-                <AccordionContent>
-                    <p className="font-semibold text-foreground mb-2">
-                        {
-                            {
-                                'a': 'Q: What is overfitting and how do you fight it?',
-                                'b': 'Q: Difference between Transformers and RNNs?',
-                                'c': 'Q: Why do we need Batch Normalization?'
-                            }[app.techQuestionChoice]
-                        }
-                    </p>
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{app.techQuestionAnswer}</p>
-                </AccordionContent>
-              </AccordionItem>
+              {app.projects && app.projects.trim() !== '' && (
+                <AccordionItem value="projects">
+                  <AccordionTrigger className="text-sm">Projects</AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap font-mono">{app.projects}</AccordionContent>
+                </AccordionItem>
+              )}
+              
+              <ConceptualCheck
+                title="Conceptual Check (Tech)"
+                choice={app.techQuestionChoice}
+                answer={app.techQuestionAnswer}
+                questions={{
+                  'a': 'What is overfitting and how do you fight it?',
+                  'b': 'Difference between Transformers and RNNs?',
+                  'c': 'Why do we need Batch Normalization?'
+                }}
+              />
+              
+              <ConceptualCheck
+                title="Design Challenge"
+                choice={app.designQuestionChoice}
+                answer={app.designQuestionAnswer}
+                questions={{
+                  'a': 'Describe your design process for a recent project.',
+                  'b': 'Pick a popular app. What is one UI/UX improvement you would make and why?',
+                  'c': 'How would you design a poster for an AI workshop?'
+                }}
+              />
+              
+              <ConceptualCheck
+                title="Operations Challenge"
+                choice={app.operationsQuestionChoice}
+                answer={app.operationsQuestionAnswer}
+                questions={{
+                  'a': "Describe how you would plan and execute a 100-person workshop, from budget to feedback collection.",
+                  'b': "A key speaker for an event cancels last minute. What's your immediate action plan?",
+                  'c': "What tools would you use to keep track of tasks, timelines, and responsibilities for a team project?"
+                }}
+              />
+
+              <ConceptualCheck
+                title="Public Relations Challenge"
+                choice={app.publicRelationsQuestionChoice}
+                answer={app.publicRelationsQuestionAnswer}
+                questions={{
+                    'a': "How would you handle negative feedback about the club on social media?",
+                    'b': "Draft a short press release for an upcoming club event.",
+                    'c': "What strategies would you use to increase the club's visibility on campus?"
+                }}
+              />
+
+              <ConceptualCheck
+                title="Outreach Challenge"
+                choice={app.outreachQuestionChoice}
+                answer={app.outreachQuestionAnswer}
+                questions={{
+                  'a': "How would you build and maintain relationships with other tech clubs or organizations?",
+                  'b': "Draft an outreach email to a potential sponsor for a hackathon.",
+                  'c': "What metrics would you track to measure the success of an outreach campaign?"
+                }}
+              />
+              
               <AccordionItem value="motivation">
                 <AccordionTrigger className="text-sm">Motivation</AccordionTrigger>
                 <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap">{app.motivation}</AccordionContent>
