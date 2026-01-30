@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Loader2, Database, Search, ArrowUp, ArrowDown } from 'lucide-react';
+import { Loader2, Database, Search, ArrowUp, ArrowDown, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ApplicationCard } from './application-card';
 import { useApplications } from '@/hooks/use-applications';
 import { Input } from '@/components/ui/input';
+import type { Application } from '@/lib/types';
 
 type SortKey = 'createdAt';
 type SortDirection = 'asc' | 'desc';
@@ -16,7 +17,7 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
   const [sortKey, setSortKey] = useState<SortKey>('createdAt');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
-  const filteredAndSortedApplications = useMemo(() => {
+  const filteredAndSortedApplications: Application[] = useMemo(() => {
     let apps = [...initialApplications];
     
     if (searchTerm) {
@@ -28,17 +29,16 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
     }
     
     apps.sort((a, b) => {
-      let valA = a[sortKey];
-      let valB = b[sortKey];
+      let valA, valB;
 
-      if(sortKey === 'createdAt') {
+      if (sortKey === 'createdAt') {
         valA = a.createdAt?.seconds || 0;
         valB = b.createdAt?.seconds || 0;
+      } else {
+        valA = a[sortKey as keyof Application] || '';
+        valB = b[sortKey as keyof Application] || '';
       }
       
-      if (valA === undefined) valA = -1;
-      if (valB === undefined) valB = -1;
-
       if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
       if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
       return 0;
@@ -54,6 +54,89 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
       setSortKey(key);
       setSortDirection('desc');
     }
+  };
+  
+  const handleDownloadCsv = () => {
+    if (filteredAndSortedApplications.length === 0) {
+      return;
+    }
+
+    const skillHeaders = [
+        'python', 'cpp', 'java', 'javascript', 'r', 'figma', 'photoshop',
+        'illustrator', 'afterEffects', 'projectManagement', 'publicSpeaking',
+        'contentWriting', 'eventManagement'
+    ];
+
+    const headers = [
+      'ID', 'Full Name', 'USN', 'Department', 'Year', 'Email', 'Phone',
+      'Roles', 'Experience Level', 'Motivation', 'Projects', 'Status', 'Submitted At',
+      'Tech Question Choice', 'Tech Question Answer',
+      'Design Question Choice', 'Design Question Answer',
+      'Operations Question Choice', 'Operations Question Answer',
+      'Public Relations Question Choice', 'Public Relations Question Answer',
+      'Outreach Question Choice', 'Outreach Question Answer',
+      ...skillHeaders
+    ];
+    
+    const escapeCsvCell = (cellData: any) => {
+        if (cellData === null || cellData === undefined) {
+            return '';
+        }
+        const stringData = String(cellData);
+        // If the string contains a comma, newline, or double quote, wrap it in double quotes.
+        if (stringData.includes('"') || stringData.includes(',') || stringData.includes('\n') || stringData.includes('\r')) {
+            // Escape any existing double quotes by doubling them.
+            return `"${stringData.replace(/"/g, '""')}"`;
+        }
+        return stringData;
+    };
+
+    const csvRows = [headers.join(',')];
+
+    filteredAndSortedApplications.forEach(app => {
+      const skillsData = skillHeaders.map(skill => app.skills?.[skill as keyof typeof app.skills] || 'None');
+      
+      const row = [
+        app.id,
+        app.fullName,
+        app.usn,
+        app.department,
+        app.year,
+        app.email,
+        app.phone,
+        app.roles.join(' | '),
+        app.experienceLevel,
+        app.motivation,
+        app.projects,
+        app.status,
+        app.createdAt ? new Date(app.createdAt.seconds * 1000).toISOString() : '',
+        app.techQuestionChoice,
+        app.techQuestionAnswer,
+        app.designQuestionChoice,
+        app.designQuestionAnswer,
+        app.operationsQuestionChoice,
+        app.operationsQuestionAnswer,
+        app.publicRelationsQuestionChoice,
+        app.publicRelationsQuestionAnswer,
+        app.outreachQuestionChoice,
+        app.outreachQuestionAnswer,
+        ...skillsData
+      ].map(escapeCsvCell);
+      csvRows.push(row.join(','));
+    });
+
+    const csvString = csvRows.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    const date = new Date().toISOString().split('T')[0];
+    link.setAttribute('download', `turing-club-applications-${date}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const SortButton = ({ K, label }: { K: SortKey, label: string}) => (
@@ -71,6 +154,10 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
           Application Dashboard
         </h2>
         <div className="flex items-center gap-2">
+          <Button onClick={handleDownloadCsv} variant="outline" disabled={applicationsLoading || filteredAndSortedApplications.length === 0}>
+              <Download className="mr-2 h-4 w-4" />
+              Download CSV
+          </Button>
           <Button onClick={onExit} variant="link">Exit Admin</Button>
         </div>
       </div>
