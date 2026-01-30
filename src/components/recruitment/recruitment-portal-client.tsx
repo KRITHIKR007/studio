@@ -17,6 +17,7 @@ import { signInAnonymously } from 'firebase/auth';
 import { useAuth, useUser, useFirestore, FirestorePermissionError, errorEmitter } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
+import Image from 'next/image';
 
 
 export function RecruitmentPortalClient() {
@@ -195,7 +196,7 @@ export function RecruitmentPortalClient() {
     <div className="max-w-3xl mx-auto p-4 md:p-8">
       <header className="mb-8 text-center space-y-2 relative">
         <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-xl mb-4 border border-primary/20">
-          <img
+          <Image
             src="/logo.jpg"
             alt="Turing Club Logo"
             width="64"
