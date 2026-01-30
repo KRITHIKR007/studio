@@ -34,8 +34,6 @@ export const applicationSchema = z.object({
   designQuestionAnswer: z.string().optional(),
   operationsQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   operationsQuestionAnswer: z.string().optional(),
-  outreachQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
-  outreachQuestionAnswer: z.string().optional(),
   publicRelationsQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   publicRelationsQuestionAnswer: z.string().optional(),
 }).superRefine((data, ctx) => {
@@ -58,13 +56,6 @@ export const applicationSchema = z.object({
             code: z.ZodIssueCode.custom,
             message: 'Answer to operations question is required.',
             path: ['operationsQuestionAnswer'],
-        });
-    }
-    if (data.roles.includes('Outreach') && (!data.outreachQuestionAnswer || data.outreachQuestionAnswer.trim().length === 0)) {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Answer to outreach question is required.',
-            path: ['outreachQuestionAnswer'],
         });
     }
     if (data.roles.includes('Public Relations') && (!data.publicRelationsQuestionAnswer || data.publicRelationsQuestionAnswer.trim().length === 0)) {

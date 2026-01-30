@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Cpu, Code, Palette, Briefcase, Megaphone } from 'lucide-react';
 import type { ApplicationSchema } from '@/lib/schema';
 
-const ROLES = ["Tech", "Design", "Public Relations", "Operations", "Outreach"];
+const ROLES = ["Tech", "Design", "Public Relations", "Operations"];
 const SKILLS = ['python', 'cpp', 'java', 'javascript', 'r'] as const;
 const DESIGN_SKILLS = ['figma', 'photoshop', 'illustrator', 'afterEffects'] as const;
 const PUBLIC_RELATIONS_SKILLS = ['publicSpeaking', 'contentWriting'] as const;
@@ -17,7 +17,7 @@ const PROFICIENCY_LEVELS = ['None', 'Basic', 'Comfortable', 'Expert'];
 
 const TECHNICAL_ROLES = ["Tech"];
 const DESIGN_ROLES = ["Design"];
-const PUBLIC_RELATIONS_ROLES = ["Public Relations", "Outreach"];
+const PUBLIC_RELATIONS_ROLES = ["Public Relations"];
 const OPERATIONS_ROLES = ["Operations"];
 
 export function Step2RoleAndSkills() {
@@ -186,7 +186,7 @@ export function Step2RoleAndSkills() {
         <Card className="bg-card/50 backdrop-blur-sm animate-fade-in">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Megaphone className="text-primary" size={24} /> Public Relations & Outreach Skills
+              <Megaphone className="text-primary" size={24} /> Public Relations Skills
             </CardTitle>
           </CardHeader>
           <CardContent>

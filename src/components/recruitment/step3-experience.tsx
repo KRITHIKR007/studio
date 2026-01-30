@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Award, Terminal, Brain, Palette, ClipboardCheck, Handshake, Megaphone } from 'lucide-react';
+import { Award, Terminal, Brain, Palette, ClipboardCheck, Megaphone } from 'lucide-react';
 import type { ApplicationSchema } from '@/lib/schema';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
@@ -33,18 +33,10 @@ const publicRelationsQuestions = {
     c: "What strategies would you use to increase the club's visibility on campus?"
 };
 
-const outreachQuestions = {
-    a: "Share an example where you reached out to someone (senior, professor, company) to make something happen. What was the outcome?",
-    b: "Draft a short email to a company inviting them to sponsor our flagship AI event.",
-    c: "How do you handle being ignored or rejected in outreach? Give a real example if you can."
-};
-
-
 const TECHNICAL_ROLES = ["Tech"];
 const DESIGN_ROLES = ["Design"];
 const OPERATIONS_ROLES = ["Operations"];
 const PUBLIC_RELATIONS_ROLES = ["Public Relations"];
-const OUTREACH_ROLES = ["Outreach"];
 
 export function Step3Experience() {
   const { control, watch } = useFormContext<ApplicationSchema>();
@@ -53,7 +45,6 @@ export function Step3Experience() {
   const showDesignChallenge = selectedRoles.some(role => DESIGN_ROLES.includes(role));
   const showOperationsChallenge = selectedRoles.some(role => OPERATIONS_ROLES.includes(role));
   const showPublicRelationsChallenge = selectedRoles.some(role => PUBLIC_RELATIONS_ROLES.includes(role));
-  const showOutreachChallenge = selectedRoles.some(role => OUTREACH_ROLES.includes(role));
 
   return (
     <div className="space-y-6">
@@ -317,59 +308,6 @@ export function Step3Experience() {
                           <Textarea
                               rows={3}
                               placeholder="Explain your thought process..."
-                              {...field}
-                          />
-                      </FormControl>
-                      <FormMessage />
-                  </FormItem>
-                  )}
-              />
-          </CardContent>
-        </Card>
-      )}
-      
-      {showOutreachChallenge && (
-        <Card className="bg-card/50 backdrop-blur-sm animate-fade-in">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Handshake className="text-primary" size={24} /> Outreach Challenge
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-              <FormField
-                  control={control}
-                  name="outreachQuestionChoice"
-                  render={({ field }) => (
-                      <FormItem className="space-y-3 mb-4">
-                          <FormLabel>Choose a question to answer</FormLabel>
-                          <FormControl>
-                              <RadioGroup
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              className="flex flex-col space-y-1"
-                              >
-                                  {Object.entries(outreachQuestions).map(([key, value]) => (
-                                      <FormItem key={key} className="flex items-center space-x-3 space-y-0">
-                                          <FormControl><RadioGroupItem value={key} /></FormControl>
-                                          <FormLabel className="font-normal">{value}</FormLabel>
-                                      </FormItem>
-                                  ))}
-                              </RadioGroup>
-                          </FormControl>
-                          <FormMessage />
-                      </FormItem>
-                  )}
-              />
-              <FormField
-                  control={control}
-                  name="outreachQuestionAnswer"
-                  render={({ field }) => (
-                  <FormItem>
-                      <FormLabel>Your Answer</FormLabel>
-                      <FormControl>
-                          <Textarea
-                              rows={3}
-                              placeholder="Provide a concrete example or a draft..."
                               {...field}
                           />
                       </FormControl>

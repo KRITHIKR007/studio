@@ -77,8 +77,6 @@ export function RecruitmentPortalClient() {
       designQuestionAnswer: '',
       operationsQuestionChoice: 'a',
       operationsQuestionAnswer: '',
-      outreachQuestionChoice: 'a',
-      outreachQuestionAnswer: '',
       publicRelationsQuestionChoice: 'a',
       publicRelationsQuestionAnswer: '',
     },
