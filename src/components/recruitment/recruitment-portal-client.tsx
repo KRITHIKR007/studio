@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Lock, Send, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
@@ -195,11 +196,11 @@ export function RecruitmentPortalClient() {
     <div className="max-w-3xl mx-auto p-4 md:p-8">
       <header className="mb-8 text-center space-y-2 relative">
         <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-xl mb-4 border border-primary/20">
-          <img
+          <Image
             src="/logo.png"
             alt="Turing Club Logo"
-            width="24"
-            height="24"
+            width={24}
+            height={24}
             className="rounded-full"
           />
           <span className="font-bold text-primary tracking-wider ml-2">TURING CLUB RECRUITMENT 2025</span>
