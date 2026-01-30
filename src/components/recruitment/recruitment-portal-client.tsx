@@ -85,8 +85,7 @@ export function RecruitmentPortalClient() {
   const nextStep = async () => {
     const fieldsToValidate: (keyof ApplicationSchema)[][] = [
         ['fullName', 'usn', 'department', 'year', 'email', 'phone'],
-        ['roles', 'skills'],
-        ['experienceLevel', 'projects', 'techQuestionChoice', 'techQuestionAnswer', 'motivation', 'designQuestionChoice', 'designQuestionAnswer', 'coreQuestionChoice', 'coreQuestionAnswer', 'outreachQuestionChoice', 'outreachQuestionAnswer']
+        ['roles']
     ];
     
     const fieldsForStep = fieldsToValidate[step-1] || [];
