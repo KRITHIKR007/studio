@@ -53,16 +53,9 @@ export function Step1PersonalDetails() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Department</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger><SelectValue placeholder="Select your department" /></SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {['CSE', 'ISE', 'AI & ML', 'ECE', 'EEE', 'Mechanical', 'Other'].map(dept => (
-                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <Input placeholder="e.g., Computer Science & Engineering" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
