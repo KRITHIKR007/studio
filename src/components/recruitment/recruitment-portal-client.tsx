@@ -19,6 +19,16 @@ import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
 import Image from 'next/image';
 import logo from '@/assets/logo/logo.jpg';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 
 export function RecruitmentPortalClient() {
@@ -29,6 +39,8 @@ export function RecruitmentPortalClient() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [validatedData, setValidatedData] = useState<ApplicationSchema | null>(null);
   const { toast } = useToast();
 
   const methods = useForm<ApplicationSchema>({
@@ -169,6 +181,18 @@ export function RecruitmentPortalClient() {
     }
   };
   
+  const handlePreSubmit = (data: ApplicationSchema) => {
+    setValidatedData(data);
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmedSubmit = async () => {
+    if (validatedData) {
+      await onSubmit(validatedData);
+    }
+    setShowConfirmDialog(false);
+  };
+
   if (isUserLoading) {
     return (
         <div className="flex h-screen w-full items-center justify-center">
@@ -223,7 +247,7 @@ export function RecruitmentPortalClient() {
       <ProgressStepper step={step} totalSteps={3} />
 
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)} className="mb-12">
+        <form onSubmit={methods.handleSubmit(handlePreSubmit)} className="mb-12">
           <div className="animate-fade-in">{steps[step - 1]}</div>
 
           <div className="mt-8 flex justify-between">
@@ -250,6 +274,24 @@ export function RecruitmentPortalClient() {
           </div>
         </form>
       </FormProvider>
+
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Submission</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to submit your application? You won't be able to make changes after this.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmedSubmit} disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSubmitting ? 'Submitting...' : 'Submit'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <footer className="text-center text-muted-foreground text-sm pb-8">
         &copy; 2025 Turing Club. Securely powered by Firebase.
