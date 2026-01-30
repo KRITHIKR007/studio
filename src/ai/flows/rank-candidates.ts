@@ -53,9 +53,14 @@ export async function rankCandidates(input: RankCandidatesInput): Promise<RankCa
   return rankCandidatesFlow(input);
 }
 
+const PromptInputSchema = z.object({
+  jobDescription: z.string().optional().describe('Optional job description for context.'),
+  candidateDataJSON: z.string(),
+});
+
 const rankCandidatesPrompt = ai.definePrompt({
   name: 'rankCandidatesPrompt',
-  input: {schema: RankCandidatesInputSchema},
+  input: {schema: PromptInputSchema},
   output: {schema: RankCandidatesOutputSchema},
   prompt: `You are an expert recruiter and evaluator helping select members for a high-functioning, university-level AI/tech club. Your goal is to select people with an owner-mindset who can reliably run the club for a full year.
 
@@ -111,11 +116,8 @@ Your task is to analyze the provided candidate data and rank each candidate base
 
 Output the rankings in JSON format, including the candidate's full name, USN, the ranking score, and your reasoning based on the dimensions above.
 
-Candidate Data: {{{JSONstringify candidateData}}}
+Candidate Data: {{{candidateDataJSON}}}
 `,
-  customHelpers: {
-    JSONstringify: (obj: any) => JSON.stringify(obj),
-  },
 });
 
 const rankCandidatesFlow = ai.defineFlow(
@@ -125,7 +127,11 @@ const rankCandidatesFlow = ai.defineFlow(
     outputSchema: RankCandidatesOutputSchema,
   },
   async input => {
-    const {output} = await rankCandidatesPrompt(input);
+    const promptInput = {
+      jobDescription: input.jobDescription,
+      candidateDataJSON: JSON.stringify(input.candidateData),
+    };
+    const {output} = await rankCandidatesPrompt(promptInput);
     return output!;
   }
 );

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Loader2, Database, Search, ArrowUp, ArrowDown, Trash2, TestTube } from 'lucide-react';
+import { Loader2, Database, Search, ArrowUp, ArrowDown, Trash2, TestTube, Sparkles } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { ApplicationCard } from './application-card';
 import { useApplications } from '@/hooks/use-applications';
@@ -292,7 +292,7 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
             {isRanking ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-4 w-4"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+              <Sparkles className="mr-2 h-4 w-4" />
             )}
             {isRanking ? 'Ranking...' : 'Rank Candidates with AI'}
           </Button>
