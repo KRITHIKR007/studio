@@ -127,6 +127,9 @@ Output the rankings in JSON format, including the candidate's full name, USN, th
 
 Candidate Data: {{{JSONstringify candidateData}}}
 `,
+  customHelpers: {
+    JSONstringify: (obj: any) => JSON.stringify(obj),
+  },
 });
 
 const rankCandidatesFlow = ai.defineFlow(
