@@ -28,7 +28,7 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
 
   const handleRankCandidates = async () => {
     setIsRanking(true);
-    const result = await getRankedCandidates();
+    const result = await getRankedCandidates(initialApplications);
     if (result.success && result.data) {
       const rankingMap = new Map<string, RankedCandidate>();
       result.data.forEach(rank => rankingMap.set(rank.usn, rank));

@@ -1,20 +1,15 @@
 'use server';
 
-import { collection, getDocs, serverTimestamp } from 'firebase/firestore';
-import { db, appId } from './firebase-server';
 import { rankCandidates, type RankCandidatesOutput, type RankCandidatesInput } from '@/ai/flows/rank-candidates';
+import type { Application } from '@/lib/types';
 
-export async function getRankedCandidates(): Promise<{ success: boolean; data?: RankCandidatesOutput; error?: string }> {
+export async function getRankedCandidates(applications: Application[]): Promise<{ success: boolean; data?: RankCandidatesOutput; error?: string }> {
   try {
-    const collectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'recruitment_applications');
-    const snapshot = await getDocs(collectionRef);
-    
-    if (snapshot.empty) {
+    if (!applications || applications.length === 0) {
       return { success: true, data: [] };
     }
     
-    const candidateData: RankCandidatesInput['candidateData'] = snapshot.docs.map(doc => {
-      const data = doc.data();
+    const candidateData: RankCandidatesInput['candidateData'] = applications.map(data => {
       return {
         fullName: data.fullName || '',
         usn: data.usn || '',
