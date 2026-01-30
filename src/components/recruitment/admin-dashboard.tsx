@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Loader2, Database, Search, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
+import { Loader2, Database, Search, ArrowUp, ArrowDown, Trash2, TestTube } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { ApplicationCard } from './application-card';
 import { useApplications } from '@/hooks/use-applications';
@@ -9,8 +9,8 @@ import { getRankedCandidates } from '@/lib/actions';
 import type { Application, RankedCandidate } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
-import { useFirestore } from '@/firebase';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { useFirestore, useUser } from '@/firebase';
+import { doc, deleteDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
 import {
   AlertDialog,
@@ -36,12 +36,123 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
   const [sortKey, setSortKey] = useState<SortKey>('createdAt');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const firestore = useFirestore();
+  const { user } = useUser();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isAddingData, setIsAddingData] = useState(false);
 
   useEffect(() => {
     setRankedApplications(initialApplications);
   }, [initialApplications]);
+
+  const handleAddDummyData = async () => {
+    if (!firestore || !user) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Cannot add dummy data. Please ensure you are connected.',
+      });
+      return;
+    }
+
+    setIsAddingData(true);
+
+    const dummyApplications = [
+      {
+        fullName: "Alex Turing",
+        usn: "23BTEXP001",
+        department: "AI & ML",
+        year: "3rd Year",
+        email: "alex.turing@college.edu",
+        phone: "1111111111",
+        roles: ["Tech"],
+        experienceLevel: "Research/Expert",
+        projects: "Published a paper on novel transformer architectures at NeurIPS. Link: https://arxiv.org/abs/1706.03762. Implemented a distributed training framework for large language models. GitHub: https://github.com/example/dist-train",
+        techQuestionChoice: 'b',
+        techQuestionAnswer: "Transformers use self-attention to process all tokens in a sequence simultaneously, allowing for parallelization and capturing long-range dependencies. RNNs process sequences token-by-token, maintaining a hidden state, which makes them prone to vanishing gradients and less efficient for long sequences.",
+        motivation: "I am passionate about pushing the boundaries of AI and believe my research experience can contribute significantly to the club's advanced projects. I want to mentor junior members and foster a culture of innovation.",
+        skills: { python: 'Expert', cpp: 'Comfortable', javascript: 'Basic', java: 'None', r: 'None', figma: 'None', photoshop: 'None', illustrator: 'None', afterEffects: 'None', projectManagement: 'None', publicSpeaking: 'None', contentWriting: 'None', eventManagement: 'None' },
+      },
+      {
+        fullName: "Brenda Laurel",
+        usn: "23BTDES002",
+        department: "Interaction Design",
+        year: "2nd Year",
+        email: "brenda.laurel@college.edu",
+        phone: "2222222222",
+        roles: ["Design", "Public Relations"],
+        experienceLevel: "Advanced",
+        projects: "Designed a full mobile app for a local startup, including user flow, wireframes, and high-fidelity mockups in Figma. Behance portfolio: https://www.behance.net/example",
+        designQuestionChoice: 'b',
+        designQuestionAnswer: "For Spotify, I would improve the podcast discovery feature. Currently, it's heavily skewed towards popular shows. I'd introduce a 'community playlist' for podcasts, allowing users to create and share themed episode lists. This would improve discoverability for niche content through social curation.",
+        publicRelationsQuestionChoice: 'b',
+        publicRelationsQuestionAnswer: "Headline: Turing Club Launches 'AI for All' Workshop Series to Demystify Artificial Intelligence for Students. The series will feature hands-on coding sessions and expert talks, making AI accessible to all disciplines.",
+        motivation: "I believe great technology needs great design to be effective. I want to help the Turing Club create beautiful, intuitive interfaces for its projects and build a strong visual brand.",
+        skills: { figma: 'Expert', photoshop: 'Comfortable', contentWriting: 'Comfortable', python: 'None', cpp: 'None', java: 'None', javascript: 'None', r: 'None', illustrator: 'None', afterEffects: 'None', projectManagement: 'None', publicSpeaking: 'None', eventManagement: 'None' },
+      },
+      {
+        fullName: "Charles Babbage",
+        usn: "23BTOPS003",
+        department: "Mechanical Engineering",
+        year: "3rd Year",
+        email: "charles.babbage@college.edu",
+        phone: "3333333333",
+        roles: ["Operations", "Outreach"],
+        experienceLevel: "Intermediate",
+        projects: "Organized a department-level technical fest for 500+ attendees. Managed budget, logistics, and a team of 20 volunteers. I also secured two corporate sponsorships for the event.",
+        operationsQuestionChoice: 'a',
+        operationsQuestionAnswer: "For a 100-person workshop, I'd start with a detailed budget covering venue, materials, speaker fees, and marketing. I'd use Trello for task management, assign owners for each vertical (logistics, marketing, content), and set clear deadlines. For feedback, I'd use a QR code at the end linking to a Google Form, incentivizing responses with a chance to win swag.",
+        outreachQuestionChoice: 'a',
+        outreachQuestionAnswer: "Building relationships requires consistent engagement. I'd propose joint events, a shared newsletter segment, and regular meetings with leaders of other clubs. For long-term health, we need to show mutual value, not just ask for things.",
+        motivation: "I excel at making things happen and bringing people together. I want to apply my organizational and networking skills to help the Turing Club grow its impact and run smoothly.",
+        skills: { projectManagement: 'Expert', eventManagement: 'Comfortable', publicSpeaking: 'Comfortable', python: 'None', cpp: 'None', java: 'None', javascript: 'None', r: 'None', figma: 'None', photoshop: 'None', illustrator: 'None', afterEffects: 'None', contentWriting: 'None' },
+      },
+      {
+        fullName: "Grace Hopper",
+        usn: "23BTBEG004",
+        department: "Computer Science & Engineering",
+        year: "1st Year",
+        email: "grace.hopper@college.edu",
+        phone: "4444444444",
+        roles: ["Tech", "Operations"],
+        experienceLevel: "Beginner",
+        projects: "Completed the CS50 course and built a small web-based calculator using HTML, CSS, and JavaScript. It's simple, but I'm proud of it! GitHub: https://github.com/example/calculator",
+        techQuestionChoice: 'a',
+        techQuestionAnswer: "Overfitting is when a model learns the training data too well, including the noise, so it performs poorly on new, unseen data. To fight it, you can use techniques like getting more data, data augmentation, regularization (like L1/L2), or dropout, which randomly turns off neurons during training to prevent co-dependency.",
+        operationsQuestionChoice: 'b',
+        operationsQuestionAnswer: "First, don't panic. I would immediately contact my team lead. While they handle communication with the audience, I'd access our pre-compiled list of backup local speakers and start making calls. We could also quickly pivot to a panel discussion with existing speakers if a replacement isn't found.",
+        motivation: "I'm new to AI but I'm a fast learner and incredibly excited about the field. I'm eager to contribute in any way I can, learn from senior members, and I'm not afraid to take on the less glamorous tasks that are essential to keep the club running.",
+        skills: { python: 'Basic', javascript: 'Basic', projectManagement: 'Basic', cpp: 'None', java: 'None', r: 'None', figma: 'None', photoshop: 'None', illustrator: 'None', afterEffects: 'None', publicSpeaking: 'None', contentWriting: 'None', eventManagement: 'None' },
+      }
+    ];
+
+    try {
+      const collectionRef = collection(firestore, 'artifacts', firebaseConfig.appId, 'public', 'data', 'recruitment_applications');
+      const addPromises = dummyApplications.map(app => {
+        return addDoc(collectionRef, {
+          ...app,
+          userId: user.uid,
+          createdAt: serverTimestamp(),
+          status: 'pending'
+        });
+      });
+      await Promise.all(addPromises);
+
+      toast({
+        title: 'Dummy Data Added',
+        description: `Successfully added ${dummyApplications.length} applications.`,
+      });
+    } catch (error) {
+      console.error("Error adding dummy data:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Adding Data Failed',
+        description: 'An error occurred while adding dummy applications.',
+      });
+    } finally {
+      setIsAddingData(false);
+    }
+  };
 
   const handleRankCandidates = async () => {
     setIsRanking(true);
@@ -160,7 +271,19 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
           <Database className="text-primary" />
           Application Dashboard
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <Button
+            onClick={handleAddDummyData}
+            disabled={isAddingData || applicationsLoading}
+            variant="outline"
+          >
+            {isAddingData ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <TestTube className="mr-2 h-4 w-4" />
+            )}
+            Add Dummy Data
+          </Button>
           <Button
             onClick={handleRankCandidates}
             disabled={isRanking || applicationsLoading || initialApplications.length === 0}
@@ -244,3 +367,5 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
     </div>
   );
 }
+
+    
