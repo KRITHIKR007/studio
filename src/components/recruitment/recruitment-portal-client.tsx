@@ -99,19 +99,9 @@ export function RecruitmentPortalClient() {
   }, [auth, user, isUserLoading, toast]);
 
 
-  const nextStep = async () => {
-    const fieldsToValidate: (keyof ApplicationSchema)[][] = [
-      ['fullName', 'usn', 'department', 'year', 'email', 'phone'],
-      ['roles'],
-    ];
-    
-    const fieldsForStep = fieldsToValidate[step-1] || [];
-    const isValid = fieldsForStep.length > 0 ? await methods.trigger(fieldsForStep as any) : true;
-
-    if (isValid) {
-      setStep((prev) => prev + 1);
-      window.scrollTo(0, 0);
-    }
+  const nextStep = () => {
+    setStep((prev) => prev + 1);
+    window.scrollTo(0, 0);
   };
 
   const prevStep = () => {
