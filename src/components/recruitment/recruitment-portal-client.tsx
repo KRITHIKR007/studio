@@ -197,12 +197,11 @@ export function RecruitmentPortalClient() {
       <header className="mb-8 text-center space-y-2 relative">
         <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-xl mb-4 border border-primary/20">
           <Image
-            src="https://picsum.photos/seed/turingclub/24/24"
+            src="/logo.png"
             alt="Turing Club Logo"
             width={24}
             height={24}
             className="rounded-full"
-            data-ai-hint="tech logo"
           />
           <span className="font-bold text-primary tracking-wider ml-2">TURING CLUB RECRUITMENT 2025</span>
         </div>
