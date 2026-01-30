@@ -19,7 +19,6 @@ import { useAuth, useUser, useFirestore, FirestorePermissionError, errorEmitter 
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
 
-
 export function RecruitmentPortalClient() {
   const auth = useAuth();
   const firestore = useFirestore();
@@ -201,7 +200,7 @@ export function RecruitmentPortalClient() {
             alt="Turing Club Logo"
             width={64}
             height={64}
-            className="rounded-full bg-white"
+            className="rounded-full"
           />
           <span className="font-bold text-primary tracking-wider ml-2">TURING CLUB RECRUITMENT 2025</span>
         </div>
