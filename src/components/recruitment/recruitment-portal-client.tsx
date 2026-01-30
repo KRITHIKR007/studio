@@ -19,6 +19,7 @@ import { useAuth, useUser, useFirestore, FirestorePermissionError, errorEmitter 
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
 
+
 export function RecruitmentPortalClient() {
   const auth = useAuth();
   const firestore = useFirestore();
@@ -196,7 +197,7 @@ export function RecruitmentPortalClient() {
       <header className="mb-8 text-center space-y-2 relative">
         <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-xl mb-4 border border-primary/20">
           <Image
-            src="/logo.png"
+            src="/logo.jpg"
             alt="Turing Club Logo"
             width={64}
             height={64}
