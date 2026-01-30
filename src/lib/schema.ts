@@ -17,18 +17,18 @@ export const skillsSchema = z.object({
 });
 
 export const applicationSchema = z.object({
-  fullName: z.string(),
+  fullName: z.string().trim(),
   usn: z.string().trim(),
-  department: z.string(),
-  year: z.string(),
+  department: z.string().trim(),
+  year: z.string().trim(),
   email: z.string().email("Invalid email address.").or(z.literal('')),
-  phone: z.string(),
+  phone: z.string().trim(),
   roles: z.array(z.string()).default([]),
-  experienceLevel: z.string(),
+  experienceLevel: z.string().trim(),
   projects: z.string().optional(),
   techQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   techQuestionAnswer: z.string().optional(),
-  motivation: z.string(),
+  motivation: z.string().trim(),
   skills: skillsSchema.partial(),
   designQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   designQuestionAnswer: z.string().optional(),
@@ -36,7 +36,36 @@ export const applicationSchema = z.object({
   operationsQuestionAnswer: z.string().optional(),
   publicRelationsQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   publicRelationsQuestionAnswer: z.string().optional(),
+  outreachQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
+  outreachQuestionAnswer: z.string().optional(),
 }).superRefine((data, ctx) => {
+    if (!data.fullName) {
+      ctx.addIssue({ code: 'custom', message: 'Full name is required.', path: ['fullName'] });
+    }
+    if (!data.usn) {
+      ctx.addIssue({ code: 'custom', message: 'USN is required.', path: ['usn'] });
+    }
+    if (!data.department) {
+      ctx.addIssue({ code: 'custom', message: 'Department is required.', path: ['department'] });
+    }
+    if (!data.year) {
+      ctx.addIssue({ code: 'custom', message: 'Year is required.', path: ['year'] });
+    }
+    if (!data.email) {
+      ctx.addIssue({ code: 'custom', message: 'Email is required.', path: ['email'] });
+    }
+    if (!data.phone) {
+      ctx.addIssue({ code: 'custom', message: 'Phone number is required.', path: ['phone'] });
+    }
+    if (data.roles.length === 0) {
+      ctx.addIssue({ code: 'custom', message: 'Please select at least one role.', path: ['roles'] });
+    }
+    if (!data.experienceLevel) {
+      ctx.addIssue({ code: 'custom', message: 'Please select your experience level.', path: ['experienceLevel'] });
+    }
+    if (!data.motivation) {
+      ctx.addIssue({ code: 'custom', message: 'Please tell us your motivation.', path: ['motivation'] });
+    }
     if (data.roles.includes('Tech') && (!data.techQuestionAnswer || data.techQuestionAnswer.trim().length === 0)) {
         ctx.addIssue({
             code: z.ZodIssueCode.custom,
@@ -63,6 +92,13 @@ export const applicationSchema = z.object({
             code: z.ZodIssueCode.custom,
             message: 'Answer to public relations question is required.',
             path: ['publicRelationsQuestionAnswer'],
+        });
+    }
+    if (data.roles.includes('Outreach') && (!data.outreachQuestionAnswer || data.outreachQuestionAnswer.trim().length === 0)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Answer to outreach question is required.',
+            path: ['outreachQuestionAnswer'],
         });
     }
 });

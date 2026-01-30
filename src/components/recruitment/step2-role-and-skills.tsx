@@ -5,20 +5,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Cpu, Code, Palette, Briefcase, Megaphone } from 'lucide-react';
+import { Cpu, Code, Palette, Briefcase, Megaphone, Contact } from 'lucide-react';
 import type { ApplicationSchema } from '@/lib/schema';
 
-const ROLES = ["Tech", "Design", "Public Relations", "Operations"];
+const ROLES = ["Tech", "Design", "Public Relations", "Operations", "Outreach"];
 const SKILLS = ['python', 'cpp', 'java', 'javascript', 'r'] as const;
 const DESIGN_SKILLS = ['figma', 'photoshop', 'illustrator', 'afterEffects'] as const;
 const PUBLIC_RELATIONS_SKILLS = ['publicSpeaking', 'contentWriting'] as const;
 const OPERATIONS_SKILLS = ['projectManagement', 'eventManagement'] as const;
+const OUTREACH_SKILLS = ['publicSpeaking', 'contentWriting', 'eventManagement'] as const;
 const PROFICIENCY_LEVELS = ['None', 'Basic', 'Comfortable', 'Expert'];
 
 const TECHNICAL_ROLES = ["Tech"];
 const DESIGN_ROLES = ["Design"];
 const PUBLIC_RELATIONS_ROLES = ["Public Relations"];
 const OPERATIONS_ROLES = ["Operations"];
+const OUTREACH_ROLES = ["Outreach"];
 
 export function Step2RoleAndSkills() {
   const { control, watch } = useFormContext<ApplicationSchema>();
@@ -28,6 +30,7 @@ export function Step2RoleAndSkills() {
   const showDesignProficiency = selectedRoles.some(role => DESIGN_ROLES.includes(role));
   const showPublicRelationsProficiency = selectedRoles.some(role => PUBLIC_RELATIONS_ROLES.includes(role));
   const showOperationsProficiency = selectedRoles.some(role => OPERATIONS_ROLES.includes(role));
+  const showOutreachProficiency = selectedRoles.some(role => OUTREACH_ROLES.includes(role));
 
   const skillToLabel = (skill: string) => {
     return {
@@ -245,6 +248,53 @@ export function Step2RoleAndSkills() {
                 ))}
               </div>
               {OPERATIONS_SKILLS.map(skill => (
+                <FormField
+                  key={skill}
+                  control={control}
+                  name={`skills.${skill}`}
+                  render={({ field }) => (
+                    <FormItem className="grid grid-cols-5 items-center gap-4 px-2 py-2 rounded-md hover:bg-muted/50">
+                      <FormLabel className="col-span-1 capitalize">{skillToLabel(skill)}</FormLabel>
+                      <FormControl className="col-span-4">
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="grid grid-cols-4"
+                        >
+                          {PROFICIENCY_LEVELS.map(level => (
+                            <FormItem key={level} className="flex items-center justify-center">
+                              <FormControl>
+                                <RadioGroupItem value={level} />
+                              </FormControl>
+                            </FormItem>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {showOutreachProficiency && (
+        <Card className="bg-card/50 backdrop-blur-sm animate-fade-in">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Contact className="text-primary" size={24} /> Outreach Skills
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-5 items-center gap-4 px-2 text-sm text-muted-foreground">
+                <div className="col-span-1 font-medium text-foreground">Skill</div>
+                {PROFICIENCY_LEVELS.map(level => (
+                  <div key={level} className="text-center">{level}</div>
+                ))}
+              </div>
+              {OUTREACH_SKILLS.map(skill => (
                 <FormField
                   key={skill}
                   control={control}

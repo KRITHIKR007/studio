@@ -31,6 +31,8 @@ export async function getRankedCandidates(): Promise<{ success: boolean; data?: 
         publicRelationsQuestionAnswer: data.publicRelationsQuestionAnswer || '',
         operationsQuestionChoice: data.operationsQuestionChoice || '',
         operationsQuestionAnswer: data.operationsQuestionAnswer || '',
+        outreachQuestionChoice: data.outreachQuestionChoice || '',
+        outreachQuestionAnswer: data.outreachQuestionAnswer || '',
         motivation: data.motivation || '',
         skills: data.skills || {},
       };

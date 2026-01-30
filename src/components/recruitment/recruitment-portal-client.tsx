@@ -79,6 +79,8 @@ export function RecruitmentPortalClient() {
       operationsQuestionAnswer: '',
       publicRelationsQuestionChoice: 'a',
       publicRelationsQuestionAnswer: '',
+      outreachQuestionChoice: 'a',
+      outreachQuestionAnswer: '',
     },
     mode: 'onTouched',
   });
