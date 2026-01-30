@@ -26,10 +26,10 @@ export const applicationSchema = z.object({
   roles: z.array(z.string()).min(1, 'Please select at least one role.'),
   experienceLevel: z.string().trim().min(1, 'Please select your experience level.'),
   projects: z.string().optional(),
-  techQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
-  techQuestionAnswer: z.string().optional(),
   motivation: z.string().trim().min(1, 'Please tell us your motivation.'),
   skills: skillsSchema.partial(),
+  techQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
+  techQuestionAnswer: z.string().optional(),
   designQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   designQuestionAnswer: z.string().optional(),
   operationsQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
@@ -38,6 +38,42 @@ export const applicationSchema = z.object({
   publicRelationsQuestionAnswer: z.string().optional(),
   outreachQuestionChoice: z.enum(['a', 'b', 'c']).optional(),
   outreachQuestionAnswer: z.string().optional(),
+}).superRefine((data, ctx) => {
+    if (data.roles.includes('Tech') && (!data.techQuestionAnswer || data.techQuestionAnswer.trim() === '')) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Answer for Tech role is required.',
+            path: ['techQuestionAnswer'],
+        });
+    }
+    if (data.roles.includes('Design') && (!data.designQuestionAnswer || data.designQuestionAnswer.trim() === '')) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Answer for Design role is required.',
+            path: ['designQuestionAnswer'],
+        });
+    }
+    if (data.roles.includes('Operations') && (!data.operationsQuestionAnswer || data.operationsQuestionAnswer.trim() === '')) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Answer for Operations role is required.',
+            path: ['operationsQuestionAnswer'],
+        });
+    }
+    if (data.roles.includes('Public Relations') && (!data.publicRelationsQuestionAnswer || data.publicRelationsQuestionAnswer.trim() === '')) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Answer for Public Relations role is required.',
+            path: ['publicRelationsQuestionAnswer'],
+        });
+    }
+    if (data.roles.includes('Outreach') && (!data.outreachQuestionAnswer || data.outreachQuestionAnswer.trim() === '')) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Answer for Outreach role is required.',
+            path: ['outreachQuestionAnswer'],
+        });
+    }
 });
 
 

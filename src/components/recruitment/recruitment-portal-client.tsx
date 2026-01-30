@@ -101,12 +101,12 @@ export function RecruitmentPortalClient() {
 
   const nextStep = async () => {
     const fieldsToValidate: (keyof ApplicationSchema)[][] = [
-        ['fullName', 'usn', 'department', 'year', 'email', 'phone'],
-        ['roles', 'skills', 'experienceLevel'],
+      ['fullName', 'usn', 'department', 'year', 'email', 'phone'],
+      ['roles'],
     ];
     
     const fieldsForStep = fieldsToValidate[step-1] || [];
-    const isValid = await methods.trigger(fieldsForStep as any);
+    const isValid = fieldsForStep.length > 0 ? await methods.trigger(fieldsForStep as any) : true;
 
     if (isValid) {
       setStep((prev) => prev + 1);
@@ -119,13 +119,23 @@ export function RecruitmentPortalClient() {
     window.scrollTo(0, 0);
   };
 
-  const onSubmit = async (data: ApplicationSchema) => {
+  const onSubmit = (data: ApplicationSchema) => {
+    // This function is called by react-hook-form's handleSubmit
+    // which means `data` is already validated against the schema.
+    setValidatedData(data);
+    setShowConfirmDialog(true);
+  };
+  
+  const handleConfirmedSubmit = async () => {
+    if (!validatedData) return;
+
     if (!user) {
       toast({
         variant: 'destructive',
         title: "Not Authenticated",
         description: "Please refresh the page and try again.",
       });
+      setShowConfirmDialog(false);
       return;
     }
     if (!firestore) {
@@ -134,43 +144,30 @@ export function RecruitmentPortalClient() {
         title: 'Database not available',
         description: 'Please refresh and try again.',
       });
+      setShowConfirmDialog(false);
       return;
     }
     
     setIsSubmitting(true);
     
-    const validation = applicationSchema.safeParse(data);
-    if (!validation.success) {
-      setIsSubmitting(false);
-      toast({
-        variant: "destructive",
-        title: "Validation Failed",
-        description: "Please check your form for errors.",
-      });
-      console.error("Validation error on submit", validation.error.flatten());
-      return;
-    }
-
     try {
       const collectionRef = collection(firestore, 'artifacts', firebaseConfig.appId, 'public', 'data', 'recruitment_applications');
       
       await addDoc(collectionRef, {
-        ...validation.data,
+        ...validatedData,
         userId: user.uid,
         createdAt: serverTimestamp(),
         status: 'pending'
       });
 
-      setIsSubmitting(false);
       setSubmitted(true);
       window.scrollTo(0, 0);
     } catch (error: any) {
-      setIsSubmitting(false);
       const collectionRef = collection(firestore, 'artifacts', firebaseConfig.appId, 'public', 'data', 'recruitment_applications');
       const permissionError = new FirestorePermissionError({
         path: collectionRef.path,
         operation: 'create',
-        requestResourceData: validation.data,
+        requestResourceData: validatedData,
       });
       errorEmitter.emit('permission-error', permissionError);
       
@@ -179,61 +176,12 @@ export function RecruitmentPortalClient() {
         title: "Submission Failed",
         description: "Could not save your application. Please try again.",
       });
+    } finally {
+      setIsSubmitting(false);
+      setShowConfirmDialog(false);
     }
   };
-  
-  const handlePreSubmit = (data: ApplicationSchema) => {
-    const { roles, techQuestionAnswer, designQuestionAnswer, operationsQuestionAnswer, publicRelationsQuestionAnswer, outreachQuestionAnswer } = data;
 
-    const roleChecks = {
-        'Tech': techQuestionAnswer,
-        'Design': designQuestionAnswer,
-        'Operations': operationsQuestionAnswer,
-        'Public Relations': publicRelationsQuestionAnswer,
-        'Outreach': outreachQuestionAnswer
-    };
-
-    const questionPaths = {
-        'Tech': 'techQuestionAnswer',
-        'Design': 'designQuestionAnswer',
-        'Operations': 'operationsQuestionAnswer',
-        'Public Relations': 'publicRelationsQuestionAnswer',
-        'Outreach': 'outreachQuestionAnswer'
-    } as const;
-
-    let hasError = false;
-    for (const role of roles) {
-        if (role in roleChecks && (!roleChecks[role as keyof typeof roleChecks] || roleChecks[role as keyof typeof roleChecks]!.trim() === '')) {
-            const path = questionPaths[role as keyof typeof questionPaths];
-            methods.setError(path, { type: 'custom', message: `Answer for ${role} role is required.` });
-            hasError = true;
-        }
-    }
-
-    if (hasError) {
-        toast({
-            variant: "destructive",
-            title: "Missing Information",
-            description: "Please answer the required questions for your selected roles on Step 3.",
-        });
-        if (step !== 3) {
-            setStep(3);
-            window.scrollTo(0, 0);
-        }
-        return;
-    }
-
-    setShowConfirmDialog(true);
-    setValidatedData(data);
-  };
-
-
-  const handleConfirmedSubmit = async () => {
-    if (validatedData) {
-      await onSubmit(validatedData);
-    }
-    setShowConfirmDialog(false);
-  };
 
   if (isUserLoading) {
     return (
@@ -289,7 +237,7 @@ export function RecruitmentPortalClient() {
       <ProgressStepper step={step} totalSteps={3} />
 
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(handlePreSubmit)} className="mb-12">
+        <form onSubmit={methods.handleSubmit(onSubmit)} className="mb-12">
           <div className="animate-fade-in">{steps[step - 1]}</div>
 
           <div className="mt-8 flex justify-between">
