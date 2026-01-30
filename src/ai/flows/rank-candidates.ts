@@ -87,12 +87,17 @@ Your task is to analyze the provided candidate data and rank each candidate base
 - **Team Behavior & Leadership:** Evaluate potential for low-ego collaboration, conflict handling, and mentoring. This is a leadership role, so look for leadership potential.
 - **Initiative:** Identify past self-driven projects, events, or leadership in any domain. This is a strong indicator of an 'owner-mindset'.
 
+**Candidate Experience Level:**
+- **Give significant weight to candidates with 'Research/Expert' experience.** Their experience with publications and state-of-the-art implementations is a strong positive signal for any role, but especially for 'Tech'. This demonstrates deep commitment and expertise.
+- **'Advanced' candidates** with end-to-end projects are also highly valuable.
+- **'Intermediate' and 'Beginner' candidates** should be evaluated on their potential, passion (from 'motivation'), and the quality of their answers, as they are the future of the club.
+
 **Role-Specific Evaluation:**
 
 ---
 
 **If the candidate applied for the 'Tech' role:**
-- **Technical Depth:** Assess algorithms, coding, debugging, version control from their \`skills\`, \`projects\`, and \`techQuestionAnswer\`. Note their ability to learn new stacks fast based on the variety in their projects.
+- **Technical Depth & Experience:** Assess algorithms, coding, debugging, and version control from their \`skills\`, \`projects\`, \`experienceLevel\`, and \`techQuestionAnswer\`. A candidate with 'Research/Expert' experience is extremely valuable. Note their ability to learn new stacks fast based on the variety in their projects.
 
 ---
 
