@@ -30,6 +30,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
+import { verifyAdminPassword } from '@/lib/actions';
 
 
 export function RecruitmentPortalClient() {
@@ -46,6 +47,7 @@ export function RecruitmentPortalClient() {
 
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const methods = useForm<ApplicationSchema>({
     resolver: zodResolver(applicationSchema),
@@ -176,18 +178,31 @@ export function RecruitmentPortalClient() {
     }
   };
 
-  const handleAdminLogin = () => {
-    if (adminPassword === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
-        setShowAdmin(true);
-        setShowAdminLogin(false);
-        setAdminPassword('');
-    } else {
-        toast({
+  const handleAdminLogin = async () => {
+    if (isVerifying) return;
+    setIsVerifying(true);
+    try {
+      const isValid = await verifyAdminPassword(adminPassword);
+      if (isValid) {
+          setShowAdmin(true);
+          setShowAdminLogin(false);
+          setAdminPassword('');
+      } else {
+          toast({
+              variant: "destructive",
+              title: "Access Denied",
+              description: "The password you entered is incorrect.",
+          });
+          setAdminPassword('');
+      }
+    } catch (error) {
+       toast({
             variant: "destructive",
-            title: "Access Denied",
-            description: "The password you entered is incorrect.",
+            title: "Error",
+            description: "An error occurred while verifying the password.",
         });
-        setAdminPassword('');
+    } finally {
+        setIsVerifying(false);
     }
   };
 
@@ -316,8 +331,9 @@ export function RecruitmentPortalClient() {
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setAdminPassword('')}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleAdminLogin}>
-              Enter
+            <AlertDialogAction onClick={handleAdminLogin} disabled={isVerifying}>
+              {isVerifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isVerifying ? 'Verifying...' : 'Enter'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
