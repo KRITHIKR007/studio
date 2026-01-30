@@ -1,12 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Loader2, Database, Search, ArrowUp, ArrowDown, Trash2, TestTube, Sparkles } from 'lucide-react';
+import { Loader2, Database, Search, ArrowUp, ArrowDown, Trash2, TestTube } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { ApplicationCard } from './application-card';
 import { useApplications } from '@/hooks/use-applications';
-import { getRankedCandidates } from '@/lib/actions';
-import type { Application, RankedCandidate } from '@/lib/types';
+import type { Application } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { useFirestore, useUser } from '@/firebase';
@@ -24,13 +23,11 @@ import {
 } from '@/components/ui/alert-dialog';
 
 
-type SortKey = 'createdAt' | 'rankingScore';
+type SortKey = 'createdAt';
 type SortDirection = 'asc' | 'desc';
 
 export function AdminDashboard({ onExit }: { onExit: () => void }) {
   const { applications: initialApplications, loading: applicationsLoading } = useApplications();
-  const [isRanking, setIsRanking] = useState(false);
-  const [rankedApplications, setRankedApplications] = useState<Application[]>([]);
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('createdAt');
@@ -40,10 +37,6 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isAddingData, setIsAddingData] = useState(false);
-
-  useEffect(() => {
-    setRankedApplications(initialApplications);
-  }, [initialApplications]);
 
   const handleAddDummyData = async () => {
     if (!firestore || !user) {
@@ -104,7 +97,7 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
         operationsQuestionAnswer: "For a 100-person workshop, I'd start with a detailed budget covering venue, materials, speaker fees, and marketing. I'd use Trello for task management, assign owners for each vertical (logistics, marketing, content), and set clear deadlines. For feedback, I'd use a QR code at the end linking to a Google Form, incentivizing responses with a chance to win swag.",
         outreachQuestionChoice: 'a',
         outreachQuestionAnswer: "Building relationships requires consistent engagement. I'd propose joint events, a shared newsletter segment, and regular meetings with leaders of other clubs. For long-term health, we need to show mutual value, not just ask for things.",
-        motivation: "I excel at making things happen and bringing people together. I want to apply my organizational and networking skills to help the Turing Club grow its impact and run smoothly.",
+        motivation: "I excel at making things happen and bring people together. I want to apply my organizational and networking skills to help the Turing Club grow its impact and run smoothly.",
         skills: { projectManagement: 'Expert', eventManagement: 'Comfortable', publicSpeaking: 'Comfortable', python: 'None', cpp: 'None', java: 'None', javascript: 'None', r: 'None', figma: 'None', photoshop: 'None', illustrator: 'None', afterEffects: 'None', contentWriting: 'None' },
       },
       {
@@ -153,36 +146,6 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
       setIsAddingData(false);
     }
   };
-
-  const handleRankCandidates = async () => {
-    setIsRanking(true);
-    const result = await getRankedCandidates(initialApplications);
-    if (result.success && result.data) {
-      const rankingMap = new Map<string, RankedCandidate>();
-      result.data.forEach(rank => rankingMap.set(rank.usn, rank));
-
-      setRankedApplications(prev =>
-        prev.map(app => {
-          const rank = rankingMap.get(app.usn);
-          return rank ? { ...app, rankingScore: rank.rankingScore, reasoning: rank.reasoning } : app;
-        })
-      );
-      
-      setSortKey('rankingScore');
-      setSortDirection('desc');
-      toast({
-        title: "Ranking Complete",
-        description: "Candidates have been ranked by AI.",
-      });
-    } else {
-      toast({
-        variant: 'destructive',
-        title: "Ranking Failed",
-        description: result.error || "An unknown error occurred.",
-      });
-    }
-    setIsRanking(false);
-  };
   
   const handleClearData = async () => {
     if (!firestore || initialApplications.length === 0) {
@@ -218,7 +181,7 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
   };
 
   const filteredAndSortedApplications = useMemo(() => {
-    let apps = [...rankedApplications];
+    let apps = [...initialApplications];
     
     if (searchTerm) {
       apps = apps.filter(app => 
@@ -246,7 +209,7 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
     });
 
     return apps;
-  }, [rankedApplications, searchTerm, sortKey, sortDirection]);
+  }, [initialApplications, searchTerm, sortKey, sortDirection]);
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -285,18 +248,6 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
             Add Dummy Data
           </Button>
           <Button
-            onClick={handleRankCandidates}
-            disabled={isRanking || applicationsLoading || initialApplications.length === 0}
-            variant="outline"
-          >
-            {isRanking ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Sparkles className="mr-2 h-4 w-4" />
-            )}
-            {isRanking ? 'Ranking...' : 'Rank Candidates with AI'}
-          </Button>
-          <Button
             variant="destructive"
             onClick={() => setShowDeleteConfirm(true)}
             disabled={isDeleting || applicationsLoading || initialApplications.length === 0}
@@ -322,7 +273,6 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
               <div className="col-span-2 flex items-center justify-start md:justify-end gap-2">
                 <span className="text-sm text-muted-foreground">Sort by:</span>
                 <SortButton K="createdAt" label="Date Submitted" />
-                <SortButton K="rankingScore" label="AI Score" />
               </div>
           </div>
       </div>
@@ -367,5 +317,3 @@ export function AdminDashboard({ onExit }: { onExit: () => void }) {
     </div>
   );
 }
-
-    

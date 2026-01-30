@@ -54,12 +54,6 @@ export function ApplicationCard({ application: app }: { application: Application
                 <CardTitle>{app.fullName}</CardTitle>
                 <CardDescription>{app.usn} &bull; {app.department} &bull; {app.year}</CardDescription>
             </div>
-            {app.rankingScore !== undefined && (
-                <div className="text-right">
-                    <p className="text-2xl font-bold text-primary">{app.rankingScore}</p>
-                    <p className="text-xs text-muted-foreground -mt-1">AI Score</p>
-                </div>
-            )}
         </div>
         <div className="pt-2">
             <Badge variant="secondary">{app.experienceLevel}</Badge>
@@ -84,12 +78,6 @@ export function ApplicationCard({ application: app }: { application: Application
             </div>
 
             <Accordion type="single" collapsible className="w-full">
-              {app.reasoning && (
-                <AccordionItem value="reasoning">
-                    <AccordionTrigger className="text-sm">AI Ranking Analysis</AccordionTrigger>
-                    <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap">{app.reasoning}</AccordionContent>
-                </AccordionItem>
-              )}
               {app.projects && app.projects.trim() !== '' && (
                 <AccordionItem value="projects">
                   <AccordionTrigger className="text-sm">Projects</AccordionTrigger>
