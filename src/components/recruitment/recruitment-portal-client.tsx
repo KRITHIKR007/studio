@@ -183,9 +183,50 @@ export function RecruitmentPortalClient() {
   };
   
   const handlePreSubmit = (data: ApplicationSchema) => {
+    const { roles, techQuestionAnswer, designQuestionAnswer, operationsQuestionAnswer, publicRelationsQuestionAnswer, outreachQuestionAnswer } = data;
+
+    const roleChecks = {
+        'Tech': techQuestionAnswer,
+        'Design': designQuestionAnswer,
+        'Operations': operationsQuestionAnswer,
+        'Public Relations': publicRelationsQuestionAnswer,
+        'Outreach': outreachQuestionAnswer
+    };
+
+    const questionPaths = {
+        'Tech': 'techQuestionAnswer',
+        'Design': 'designQuestionAnswer',
+        'Operations': 'operationsQuestionAnswer',
+        'Public Relations': 'publicRelationsQuestionAnswer',
+        'Outreach': 'outreachQuestionAnswer'
+    } as const;
+
+    let hasError = false;
+    for (const role of roles) {
+        if (role in roleChecks && (!roleChecks[role as keyof typeof roleChecks] || roleChecks[role as keyof typeof roleChecks]!.trim() === '')) {
+            const path = questionPaths[role as keyof typeof questionPaths];
+            methods.setError(path, { type: 'custom', message: `Answer for ${role} role is required.` });
+            hasError = true;
+        }
+    }
+
+    if (hasError) {
+        toast({
+            variant: "destructive",
+            title: "Missing Information",
+            description: "Please answer the required questions for your selected roles on Step 3.",
+        });
+        if (step !== 3) {
+            setStep(3);
+            window.scrollTo(0, 0);
+        }
+        return;
+    }
+
     setShowConfirmDialog(true);
     setValidatedData(data);
   };
+
 
   const handleConfirmedSubmit = async () => {
     if (validatedData) {

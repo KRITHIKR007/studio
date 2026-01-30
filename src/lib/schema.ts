@@ -66,41 +66,6 @@ export const applicationSchema = z.object({
     if (!data.motivation) {
       ctx.addIssue({ code: 'custom', message: 'Please tell us your motivation.', path: ['motivation'] });
     }
-    if (data.roles.includes('Tech') && (!data.techQuestionAnswer || data.techQuestionAnswer.trim().length === 0)) {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Answer to technical question is required.',
-            path: ['techQuestionAnswer'],
-        });
-    }
-    if (data.roles.includes('Design') && (!data.designQuestionAnswer || data.designQuestionAnswer.trim().length === 0)) {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Answer to design question is required.',
-            path: ['designQuestionAnswer'],
-        });
-    }
-    if (data.roles.includes('Operations') && (!data.operationsQuestionAnswer || data.operationsQuestionAnswer.trim().length === 0)) {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Answer to operations question is required.',
-            path: ['operationsQuestionAnswer'],
-        });
-    }
-    if (data.roles.includes('Public Relations') && (!data.publicRelationsQuestionAnswer || data.publicRelationsQuestionAnswer.trim().length === 0)) {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Answer to public relations question is required.',
-            path: ['publicRelationsQuestionAnswer'],
-        });
-    }
-    if (data.roles.includes('Outreach') && (!data.outreachQuestionAnswer || data.outreachQuestionAnswer.trim().length === 0)) {
-        ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Answer to outreach question is required.',
-            path: ['outreachQuestionAnswer'],
-        });
-    }
 });
 
 
