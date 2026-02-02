@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Lock, Send, ChevronRight, ChevronLeft, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Send, ChevronRight, ChevronLeft, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { applicationSchema, type ApplicationSchema } from '@/lib/schema';
 import { Step1PersonalDetails } from './step1-personal-details';
@@ -19,8 +19,6 @@ import { signInAnonymously } from 'firebase/auth';
 import { useAuth, useUser, useFirestore, FirestorePermissionError, errorEmitter } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
-import Image from 'next/image';
-import logo from '@/assets/logo/logo.jpg';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,12 +32,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { verifyAdminPassword } from '@/lib/actions';
 import { cn } from '@/lib/utils';
+import { LandingPage } from './landing-page';
 
 
 export function RecruitmentPortalClient() {
   const auth = useAuth();
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
+  const [showForm, setShowForm] = useState(false);
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,6 +52,7 @@ export function RecruitmentPortalClient() {
   const [adminPassword, setAdminPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const signingInRef = useRef(false);
 
   const methods = useForm<ApplicationSchema>({
     resolver: zodResolver(applicationSchema),
@@ -93,35 +94,64 @@ export function RecruitmentPortalClient() {
       outreachQuestionAnswer: '',
     },
     mode: 'onTouched',
+    shouldUnregister: false,
   });
 
+  const formErrors = methods.formState.errors;
+
   useEffect(() => {
-    if (auth && !user && !isUserLoading) {
-      signInAnonymously(auth).catch((error) => {
-        console.error("Anonymous sign-in failed:", error);
-        toast({
-          variant: 'destructive',
-          title: "Authentication Error",
-          description: "Could not connect to the service. Please refresh the page.",
+    if (Object.keys(formErrors).length > 0) {
+      console.log('Form Validation Errors:', formErrors);
+    }
+  }, [formErrors]);
+
+  useEffect(() => {
+    if (auth && !user && !isUserLoading && !signingInRef.current) {
+      signingInRef.current = true;
+      signInAnonymously(auth)
+        .then(() => {
+          signingInRef.current = false;
+        })
+        .catch((error) => {
+          signingInRef.current = false;
+          console.error("Anonymous sign-in failed:", error);
+          toast({
+            variant: 'destructive',
+            title: "Authentication Error",
+            description: "Could not connect to the service. Please refresh the page.",
+          });
         });
-      });
     }
   }, [auth, user, isUserLoading, toast]);
 
 
-  const nextStep = () => {
-    setStep((prev) => prev + 1);
-    window.scrollTo(0, 0);
+  const nextStep = async () => {
+    const fieldsToValidate: any = {
+      1: ['fullName', 'usn', 'department', 'year', 'phone', 'email'],
+      2: ['roles', 'skills'],
+      3: ['experienceLevel', 'projects', 'motivation']
+    };
+
+    const isStepValid = await methods.trigger(fieldsToValidate[step]);
+
+    if (isStepValid) {
+      setStep((prev) => prev + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Incomplete Details",
+        description: "Please fill in all required fields before proceeding.",
+      });
+    }
   };
 
   const prevStep = () => {
     setStep((prev) => prev - 1);
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const onSubmit = (data: ApplicationSchema) => {
-    // This function is called by react-hook-form's handleSubmit
-    // which means `data` is already validated against the schema.
     setValidatedData(data);
     setShowConfirmDialog(true);
   };
@@ -186,7 +216,7 @@ export function RecruitmentPortalClient() {
     if (isVerifying) return;
     setIsVerifying(true);
     try {
-      const isValid = await verifyAdminPassword(adminPassword);
+      const isValid = await verifyAdminPassword(adminPassword.trim());
       if (isValid) {
         setShowAdmin(true);
         setShowAdminLogin(false);
@@ -210,126 +240,162 @@ export function RecruitmentPortalClient() {
     }
   };
 
+  const handleLogoClick = () => {
+    setShowForm(false);
+    setShowAdmin(false);
+    setShowAdminLogin(false);
+    setStep(1);
+    setSubmitted(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSectionClick = (section: string) => {
+    if (showForm || showAdmin || submitted) {
+      setShowForm(false);
+      setShowAdmin(false);
+      setSubmitted(false);
+      setTimeout(() => {
+        const element = document.getElementById(section);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      const element = document.getElementById(section);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   if (isUserLoading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex h-screen w-full items-center justify-center bg-white">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
-    )
+    );
   }
-
-  if (showAdmin) {
-    return <AdminDashboard onExit={() => setShowAdmin(false)} />;
-  }
-
-  if (submitted) {
-    return <SubmissionSuccess submittedData={validatedData} />;
-  }
-
-  const steps = [
-    <Step1PersonalDetails />,
-    <Step2RoleAndSkills />,
-    <Step3Experience />,
-  ];
 
   return (
     <div className="relative min-h-screen">
-      <Navbar onAdminClick={() => setShowAdminLogin(true)} />
-
-      <div className="max-w-4xl mx-auto px-4 pt-12 pb-24">
-        <div className="mb-12 text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold tracking-[0.2em] text-primary uppercase animate-glow">
-            Recruitment Phase 2025
-          </div>
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white">
-            Join the <span className="text-gradient">Turing Club</span>
-          </h1>
-          <p className="text-white/40 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
-            Elevate your skills, collaborate on breakthrough projects, and become part of our elite engineering community.
-          </p>
+      {/* View Content Branching */}
+      {showAdmin ? (
+        <AdminDashboard onExit={() => setShowAdmin(false)} />
+      ) : submitted ? (
+        <SubmissionSuccess submittedData={validatedData} />
+      ) : !showForm ? (
+        <div className="bg-white">
+          <Navbar
+            onAdminClick={() => setShowAdminLogin(true)}
+            onLogoClick={handleLogoClick}
+            onSectionClick={handleSectionClick}
+          />
+          <LandingPage onStart={() => setShowForm(true)} />
         </div>
+      ) : (
+        <>
+          <Navbar
+            onAdminClick={() => setShowAdminLogin(true)}
+            onLogoClick={handleLogoClick}
+            onSectionClick={handleSectionClick}
+          />
 
-        <div className="mb-12">
-          <ProgressStepper step={step} totalSteps={3} />
-        </div>
-
-        <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="animate-fade-in">
-              {step === 1 && (
-                <FormSection
-                  id="personal"
-                  index={1}
-                  title="Personal Blueprint"
-                  description="Tell us who you are. This information helps us get in touch and understand your background."
-                >
-                  <Step1PersonalDetails />
-                </FormSection>
-              )}
-              {step === 2 && (
-                <FormSection
-                  id="roles"
-                  index={2}
-                  title="Skills & Arsenal"
-                  description="Choose your path. Select the roles that excite you and show us what you're capable of."
-                >
-                  <Step2RoleAndSkills />
-                </FormSection>
-              )}
-              {step === 3 && (
-                <FormSection
-                  id="experience"
-                  index={3}
-                  title="Final Frontier"
-                  description="Showcase your work. Share your projects and tackle a role-specific challenge."
-                >
-                  <Step3Experience />
-                </FormSection>
-              )}
+          <div className="max-w-4xl mx-auto px-4 pt-20 pb-24">
+            <div className="mb-12 text-center space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold tracking-[0.2em] text-primary uppercase animate-glow">
+                Application Workspace
+              </div>
+              <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900">
+                Design your <span className="text-gradient">Legacy</span>
+              </h1>
+              <p className="text-slate-500 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+                Fill out the details below to complete your candidate profile. Precision and honesty are key.
+              </p>
             </div>
 
-            <div className="pt-8 flex items-center justify-between border-t border-white/5">
-              <Button
-                type="button"
-                onClick={prevStep}
-                disabled={step === 1}
-                variant="ghost"
-                className={cn(
-                  "h-12 px-6 rounded-2xl hover:bg-white/5 transition-all",
-                  step === 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'
-                )}
-              >
-                <ChevronLeft size={18} className="mr-2" /> Previous Step
-              </Button>
+            <div className="mb-12">
+              <ProgressStepper step={step} totalSteps={3} />
+            </div>
 
-              {step < 3 ? (
-                <Button
-                  type="button"
-                  onClick={nextStep}
-                  className="h-12 px-8 rounded-2xl primary-gradient hover:opacity-90 transition-all font-bold shadow-[0_0_20px_rgba(var(--primary),0.3)]"
-                >
-                  Next Stage <ChevronRight size={18} className="ml-2" />
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  disabled={isSubmitting || isUserLoading}
-                  className="h-12 px-8 rounded-2xl primary-gradient hover:opacity-90 transition-all font-bold shadow-[0_0_20px_rgba(var(--primary),0.3)]"
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Send size={16} className="mr-2" />
+            <FormProvider {...methods}>
+              <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-12">
+                <div className="animate-fade-in transition-all duration-500">
+                  {step === 1 && (
+                    <FormSection
+                      id="personal"
+                      index={1}
+                      title="Candidate Identity"
+                      description="Foundational data. Essential for secure communication and identification."
+                    >
+                      <Step1PersonalDetails />
+                    </FormSection>
                   )}
-                  {isSubmitting ? 'Transmitting...' : 'Complete Application'}
-                </Button>
-              )}
-            </div>
-          </form>
-        </FormProvider>
-      </div>
+                  {step === 2 && (
+                    <FormSection
+                      id="roles"
+                      index={2}
+                      title="Specialization"
+                      description="Operational sectors. Define your tactical expertise and role preferences."
+                    >
+                      <Step2RoleAndSkills />
+                    </FormSection>
+                  )}
+                  {step === 3 && (
+                    <FormSection
+                      id="experience"
+                      index={3}
+                      title="Execution Portfolio"
+                      description="Strategic evidence. Showcase past implementations and tackle a sector-specific challenge."
+                    >
+                      <Step3Experience />
+                    </FormSection>
+                  )}
+                </div>
 
+                <div className="pt-8 flex items-center justify-between border-t border-slate-100">
+                  <Button
+                    type="button"
+                    onClick={prevStep}
+                    disabled={step === 1}
+                    variant="ghost"
+                    className={cn(
+                      "h-14 px-8 rounded-2xl hover:bg-slate-100 transition-all font-semibold text-slate-600",
+                      step === 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                    )}
+                  >
+                    <ChevronLeft size={20} className="mr-2" /> Previous Step
+                  </Button>
+
+                  {step < 3 ? (
+                    <Button
+                      type="button"
+                      onClick={nextStep}
+                      className="h-14 px-10 rounded-2xl primary-gradient text-white hover:opacity-90 transition-all font-bold shadow-lg shadow-primary/25"
+                    >
+                      Continue Journey <ChevronRight size={20} className="ml-2" />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting || isUserLoading}
+                      className="h-14 px-10 rounded-2xl primary-gradient text-white hover:opacity-90 transition-all font-bold shadow-lg shadow-primary/25 border-none"
+                    >
+                      {isSubmitting ? (
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      ) : (
+                        <Send size={18} className="mr-2" />
+                      )}
+                      {isSubmitting ? 'Transmitting...' : 'Finish Transmission'}
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </FormProvider>
+          </div>
+        </>
+      )}
+
+      {/* Global Persistence Components */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -356,14 +422,14 @@ export function RecruitmentPortalClient() {
               Please enter the admin password to view the dashboard.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="py-4 relative">
+          <div className="py-4">
             <div className="relative">
               <Input
                 type={showPassword ? "text" : "password"}
                 placeholder="Manager Authentication Key"
                 value={adminPassword}
                 onChange={(e) => setAdminPassword(e.target.value)}
-                className="h-12 bg-white/5 border-white/10 rounded-xl pr-12 focus:border-primary/50"
+                className="h-12 bg-white border-slate-200 rounded-xl pr-12 focus:border-primary/50"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -374,7 +440,7 @@ export function RecruitmentPortalClient() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                 title={showPassword ? "Hide Password" : "Show Password"}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -392,7 +458,7 @@ export function RecruitmentPortalClient() {
       </AlertDialog>
 
       <footer className="text-center text-muted-foreground text-sm pb-8">
-        &copy; 2025 Turing Club. Securely powered by Firebase.
+        &copy; 2025 The Turing Club. Securely powered by Firebase.
       </footer>
     </div>
   );

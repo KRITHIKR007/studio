@@ -2,65 +2,91 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Lock, Menu, X } from 'lucide-react';
+import { Lock, Menu, X, Home, Users, Rocket, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import logo from '@/assets/logo/logo.jpg';
+import { cn } from '@/lib/utils';
 
 interface NavbarProps {
     onAdminClick: () => void;
+    onLogoClick: () => void;
+    onSectionClick?: (section: string) => void;
 }
 
-export function Navbar({ onAdminClick }: NavbarProps) {
+export function Navbar({ onAdminClick, onLogoClick, onSectionClick }: NavbarProps) {
     const [isScrolled, setIsScrolled] = React.useState(false);
 
     React.useEffect(() => {
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > 20);
+            setIsScrolled(window.scrollY > 50);
         };
-        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     return (
         <nav
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'py-3 glass-darker border-b' : 'py-6 bg-transparent'
-                }`}
+            className={cn(
+                "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+                isScrolled
+                    ? "py-4 bg-white/80 backdrop-blur-xl border-b border-slate-200 shadow-sm"
+                    : "py-6 bg-transparent border-b border-transparent"
+            )}
         >
             <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-                <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                    <div className="relative overflow-hidden rounded-full w-10 h-10 border border-white/20 group-hover:border-primary/50 transition-colors">
+                {/* Logo & Brand */}
+                <div
+                    className="flex items-center gap-3 group cursor-pointer"
+                    onClick={onLogoClick}
+                >
+                    <div className="relative w-10 h-10 transition-transform duration-500 group-hover:scale-110">
                         <Image
                             src={logo}
-                            alt="Turing Club Logo"
+                            alt="The Turing Club Logo"
                             fill
-                            className="object-cover group-hover:scale-110 transition-transform duration-500"
+                            className="object-contain mix-blend-multiply"
                         />
                     </div>
                     <div className="flex flex-col">
-                        <span className="font-bold text-lg tracking-tight leading-none text-gradient">TURING CLUB</span>
-                        <span className="text-[10px] font-semibold tracking-[0.2em] text-primary uppercase">Recruitment 2025</span>
+                        <span className="font-extrabold text-xl tracking-tight leading-none text-slate-900">THE TURING <span className="text-primary">CLUB</span></span>
+                        <span className="text-[9px] font-black tracking-[0.25em] text-slate-400 uppercase">Engineering Elite</span>
                     </div>
                 </div>
 
+                {/* Desktop Menu */}
                 <div className="hidden md:flex items-center gap-8">
-                    <a href="#personal" className="text-sm font-medium text-muted-foreground hover:text-white transition-colors">Personal</a>
-                    <a href="#roles" className="text-sm font-medium text-muted-foreground hover:text-white transition-colors">Roles</a>
-                    <a href="#experience" className="text-sm font-medium text-muted-foreground hover:text-white transition-colors">Experience</a>
+                    {[
+                        { name: 'Home', section: 'home', icon: Home },
+                        { name: 'About', section: 'about', icon: Info },
+                        { name: 'Roles', section: 'roles', icon: Users },
+                        { name: 'Execute', section: 'experience', icon: Rocket },
+                    ].map((item) => (
+                        <button
+                            key={item.name}
+                            onClick={() => onSectionClick ? onSectionClick(item.section) : onLogoClick()}
+                            className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-primary transition-all duration-300 relative group"
+                        >
+                            <item.icon size={16} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                            <span>{item.name}</span>
+                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
+                        </button>
+                    ))}
                 </div>
 
+                {/* Actions */}
                 <div className="flex items-center gap-4">
                     <Button
                         onClick={onAdminClick}
                         variant="ghost"
                         size="sm"
-                        className="hidden sm:flex items-center gap-2 hover:bg-white/5 border border-transparent hover:border-white/10"
+                        className="hidden sm:flex items-center gap-2 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl px-4 h-10 border border-slate-200"
                     >
                         <Lock size={14} className="text-primary" />
-                        <span className="text-xs font-semibold uppercase tracking-wider">Admin Portal</span>
+                        <span className="text-xs font-black uppercase tracking-wider">Gatekeeper</span>
                     </Button>
 
-                    <Button variant="ghost" size="icon" className="md:hidden">
-                        <Menu size={20} />
+                    <Button variant="ghost" size="icon" className="md:hidden bg-white border border-slate-100 rounded-xl shadow-sm">
+                        <Menu size={20} className="text-slate-600" />
                     </Button>
                 </div>
             </div>

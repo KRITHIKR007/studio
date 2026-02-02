@@ -6,13 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Separator } from '@/components/ui/separator';
+import { User, Mail, Hash, BookOpen, Calendar, Star, Github, ExternalLink } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-function SkillPill({ label, value }: {label: string, value: string}) {
-    let colorClass = 'bg-secondary text-secondary-foreground';
-    if (value === 'Expert') colorClass = 'bg-green-500/20 text-green-300 border-green-500/30';
-    if (value === 'Comfortable') colorClass = 'bg-sky-500/20 text-sky-300 border-sky-500/30';
-    
-    return <Badge variant="outline" className={`capitalize ${colorClass}`}>{label}</Badge>
+function SkillPill({ label, value }: { label: string, value: string }) {
+  let colorClass = 'bg-slate-100 text-slate-600 border-slate-200';
+  if (value === 'Expert') colorClass = 'bg-primary/10 text-primary border-primary/20';
+  if (value === 'Comfortable') colorClass = 'bg-blue-500/10 text-blue-500 border-blue-500/20';
+
+  return <Badge variant="outline" className={cn("px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider", colorClass)}>{label}: {value}</Badge>
 }
 
 const ConceptualCheck = ({
@@ -28,155 +30,135 @@ const ConceptualCheck = ({
   questions: Record<string, string>;
   isLink?: boolean;
 }) => {
-  if (!answer || !choice || answer.trim() === '') {
+  if (!answer || !choice) {
     return null;
   }
   return (
-    <AccordionItem value={title.toLowerCase().replace(/\s/g, '-')}>
-      <AccordionTrigger className="text-sm">{title}</AccordionTrigger>
-      <AccordionContent>
-        <p className="font-semibold text-foreground mb-2">
-          Q: {questions[choice]}
-        </p>
-        {isLink ? (
-          <a href={answer} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline break-all">
-            {answer}
-          </a>
-        ) : (
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-            {answer}
-          </p>
-        )}
+    <AccordionItem value={title.toLowerCase().replace(/\s/g, '-')} className="border-slate-100">
+      <AccordionTrigger className="text-sm font-bold text-slate-700 hover:text-primary transition-colors">
+        {title}
+      </AccordionTrigger>
+      <AccordionContent className="space-y-4 pt-2">
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 italic text-slate-500 text-xs font-medium leading-relaxed">
+          Q: {questions[choice] || 'Question definition missing'}
+        </div>
+        <div className="px-1 text-sm text-slate-600 leading-loose whitespace-pre-wrap">
+          {isLink ? (
+            <a href={answer} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-primary hover:underline font-mono">
+              <Github size={14} /> {answer} <ExternalLink size={12} />
+            </a>
+          ) : (
+            answer
+          )}
+        </div>
       </AccordionContent>
     </AccordionItem>
   );
 };
 
-const beginnerTechQuestions = {
-    a: "Implement a Breadth-First Search (BFS) or Depth-First Search (DFS) algorithm in your preferred language to find a path in a given maze (represented as a 2D array).",
-    b: "Build a simple command-line tool that fetches data from a public API (e.g., the GitHub API to get user repos) and displays it in a user-friendly format.",
-    c: "Write a script to scrape the headlines from a news website (like BBC News) and save them to a CSV file."
-};
-
-const intermediateTechQuestions = {
-    a: "Develop a simple REST API (using Flask, FastAPI, or Express.js) that serves predictions from a pre-trained machine learning model (you can use a simple model from scikit-learn).",
-    b: "Build and containerize a simple data processing pipeline using Docker. The pipeline should read a CSV, perform a simple transformation (e.g., filter rows), and write the output to a new file.",
-    c: "Create a basic chatbot using rule-based logic or a simple NLP library that can answer questions about a specific topic (e.g., your university)."
-};
-
-const advancedTechQuestions = {
-    a: "Implement a Q-Learning agent from scratch to solve a simple environment, or optimize a pre-trained model for a specific edge case.",
-    b: "Set up a basic distributed task queue or a containerized environment that can handle a mock AI workload.",
-    c: "Build a retrieval-augmented generation (RAG) pipeline that uses a Knowledge Graph to answer complex queries."
-};
-
-const allTechQuestions = {
-    'Beginner': beginnerTechQuestions,
-    'Intermediate': intermediateTechQuestions,
-    'Advanced': advancedTechQuestions,
-    'Research/Expert': advancedTechQuestions
+// Simplified questions for summary view
+const summaryQuestions = {
+  'Tech': {
+    a: "Technical Challenge & Resolution",
+    b: "Explaining Technology Simplicity"
+  },
+  'Design': {
+    a: "Product Design Analysis",
+    b: "Creative Process Walkthrough"
+  }
 };
 
 export function ApplicationCard({ application: app }: { application: Application }) {
-  const techQuestionsForCard = allTechQuestions[app.experienceLevel as keyof typeof allTechQuestions] || advancedTechQuestions;
-  
   return (
-    <Card className="flex flex-col">
-      <CardHeader>
-        <div className="flex justify-between items-start">
-            <div>
-                <CardTitle>{app.fullName}</CardTitle>
-                <CardDescription>{app.usn} &bull; {app.department} &bull; {app.year}</CardDescription>
+    <Card className="rounded-[2.5rem] border-slate-100 shadow-2xl shadow-slate-200/50 overflow-hidden bg-white">
+      <CardHeader className="p-8 pb-4">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-[10px] font-black text-slate-400 tracking-widest uppercase">
+              Status: {app.status}
             </div>
-        </div>
-        <div className="pt-2">
-            <Badge variant="secondary">{app.experienceLevel}</Badge>
+            <CardTitle className="text-3xl font-black text-slate-900 tracking-tight">{app.fullName}</CardTitle>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
+                <Hash size={16} className="text-primary" /> {app.usn}
+              </div>
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
+                <Calendar size={16} className="text-primary" /> {app.year}
+              </div>
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
+                <BookOpen size={16} className="text-primary" /> {app.department}
+              </div>
+              <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
+                <Mail size={16} className="text-primary" /> {app.email}
+              </div>
+            </div>
+          </div>
+          <div className="flex-shrink-0">
+            <div className="flex flex-col items-center p-6 rounded-3xl bg-primary/5 border border-primary/10">
+              <Star size={32} className="text-primary mb-2 fill-primary/10" />
+              <span className="text-xs font-black text-primary uppercase tracking-[0.2em]">{app.experienceLevel}</span>
+            </div>
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-grow flex flex-col">
-          <Separator className="mb-4" />
-          <div className="flex flex-col gap-4 flex-grow">
-            <div>
-              <p className="text-sm font-medium mb-2">Preferred Roles</p>
-              <div className="flex flex-wrap gap-2">
-                {app.roles?.map(r => <Badge key={r} variant="outline" className="bg-purple-900/30 text-purple-300 border-purple-500/30">{r}</Badge>)}
-              </div>
+
+      <CardContent className="p-8 space-y-8">
+        <Separator className="bg-slate-100" />
+
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <p className="text-[10px] font-black text-slate-400 tracking-[0.2em] uppercase">Sector Specializations</p>
+            <div className="flex flex-wrap gap-2">
+              {app.roles?.map(r => (
+                <Badge key={r} variant="outline" className="px-4 py-1.5 rounded-xl bg-slate-50 text-slate-600 border-slate-100 font-bold hover:border-primary/20 transition-colors">
+                  {r}
+                </Badge>
+              ))}
             </div>
-            <div>
-              <p className="text-sm font-medium mb-2">Skills</p>
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(app.skills || {}).filter(([_,v]) => v !== 'None').map(([k,v]) => (
-                  <SkillPill key={k} label={k} value={v}/>
-                ))}
-              </div>
-            </div>
-
-            <Accordion type="single" collapsible className="w-full">
-              {app.projects && app.projects.trim() !== '' && (
-                <AccordionItem value="projects">
-                  <AccordionTrigger className="text-sm">Projects</AccordionTrigger>
-                  <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap font-mono">{app.projects}</AccordionContent>
-                </AccordionItem>
-              )}
-              
-              <ConceptualCheck
-                title="Take-Home Coding Challenge (Tech)"
-                choice={app.techQuestionChoice}
-                answer={app.techQuestionAnswer}
-                isLink={true}
-                questions={techQuestionsForCard}
-              />
-              
-              <ConceptualCheck
-                title="Design Challenge"
-                choice={app.designQuestionChoice}
-                answer={app.designQuestionAnswer}
-                questions={{
-                  'a': 'Describe your design process for a recent project.',
-                  'b': 'Pick a popular app. What is one UI/UX improvement you would make and why?',
-                  'c': 'How would you design a poster for an AI workshop?'
-                }}
-              />
-              
-              <ConceptualCheck
-                title="Operations Challenge"
-                choice={app.operationsQuestionChoice}
-                answer={app.operationsQuestionAnswer}
-                questions={{
-                  'a': "Describe how you would plan and execute a 100-person workshop, from budget to feedback collection.",
-                  'b': "A key speaker for an event cancels last minute. What's your immediate action plan?",
-                  'c': "What tools would you use to keep track of tasks, timelines, and responsibilities for a team project?"
-                }}
-              />
-
-              <ConceptualCheck
-                title="Public Relations Challenge"
-                choice={app.publicRelationsQuestionChoice}
-                answer={app.publicRelationsQuestionAnswer}
-                questions={{
-                    'a': "How would you handle negative feedback about the club on social media?",
-                    'b': "Draft a short press release for an upcoming club event.",
-                    'c': "What strategies would you use to increase the club's visibility on campus?"
-                }}
-              />
-
-              <ConceptualCheck
-                title="Outreach Challenge"
-                choice={app.outreachQuestionChoice}
-                answer={app.outreachQuestionAnswer}
-                questions={{
-                  'a': "How would you build and maintain relationships with other tech clubs or organizations?",
-                  'b': "Draft an outreach email to a potential sponsor for a hackathon.",
-                  'c': "What metrics would you track to measure the success of an outreach campaign?"
-                }}
-              />
-              
-              <AccordionItem value="motivation">
-                <AccordionTrigger className="text-sm">Motivation</AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground whitespace-pre-wrap">{app.motivation}</AccordionContent>
-              </AccordionItem>
-            </Accordion>
           </div>
+
+          <div className="space-y-4">
+            <p className="text-[10px] font-black text-slate-400 tracking-[0.2em] uppercase">Skillset Inventory</p>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(app.skills || {}).filter(([_, v]) => v !== 'None').map(([k, v]) => (
+                <SkillPill key={k} label={k} value={v as string} />
+              ))}
+            </div>
+          </div>
+
+          <Accordion type="single" collapsible className="w-full">
+            {app.projects && app.projects.trim() !== '' && (
+              <AccordionItem value="projects" className="border-slate-100">
+                <AccordionTrigger className="text-sm font-bold text-slate-700 hover:text-primary transition-colors">Strategic Portfolio</AccordionTrigger>
+                <AccordionContent className="text-sm text-slate-500 leading-loose whitespace-pre-wrap font-mono bg-slate-50 p-6 rounded-2xl border border-slate-100 mt-2">
+                  {app.projects}
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
+            <ConceptualCheck
+              title="Engineering Challenge (Tech)"
+              choice={app.techQuestionChoice}
+              answer={app.techQuestionAnswer}
+              isLink={true}
+              questions={summaryQuestions['Tech'] as any}
+            />
+
+            <ConceptualCheck
+              title="Creative Challenge (Design)"
+              choice={app.designQuestionChoice}
+              answer={app.designQuestionAnswer}
+              questions={summaryQuestions['Design'] as any}
+            />
+
+            <AccordionItem value="motivation" className="border-none">
+              <AccordionTrigger className="text-sm font-bold text-slate-700 hover:text-primary transition-colors">Personal Manifesto</AccordionTrigger>
+              <AccordionContent className="text-sm text-slate-500 leading-loose whitespace-pre-wrap pt-2 px-1">
+                {app.motivation}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
       </CardContent>
     </Card>
   );

@@ -1,334 +1,345 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Award, Terminal, Brain, Palette, ClipboardCheck, Megaphone, Contact, Link2, Info, Sparkles, Code } from 'lucide-react';
+import { Award, Terminal, Brain, Palette, ClipboardCheck, Megaphone, Contact, Link2, Info, Sparkles, Code, CheckCircle2, Star } from 'lucide-react';
 import type { ApplicationSchema } from '@/lib/schema';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
+const EXPERIENCE_LEVELS = [
+  { id: 'Beginner', label: 'Novice', desc: 'Focusing on core concepts and basic implementations.', icon: Brain },
+  { id: 'Intermediate', label: 'Practitioner', desc: 'Active developer with several deployed projects.', icon: Terminal },
+  { id: 'Advanced', label: 'Specialist', desc: 'Deep technical expertise and systems design.', icon: Award }
+];
+
 const beginnerTechQuestions = {
-  a: "Implement a Breadth-First Search (BFS) or Depth-First Search (DFS) algorithm to find a path in a given maze.",
-  b: "Build a simple command-line tool that fetches data from a public API and displays it formatted.",
-  c: "Write a script to scrape the headlines from a news website and save them to a CSV file."
+  a: "Describe the biggest technical challenge you've faced so far. How did you break down the problem and what was the resolution?",
+  b: "Explain a concept you recently learned in technology. How would you explain it to a non-technical person?",
 };
 
 const intermediateTechQuestions = {
-  a: "Develop a simple REST API (Flask/Express) that serves predictions from a pre-trained ML model.",
-  b: "Build and containerize a simple data processing pipeline using Docker with CSV transformations.",
-  c: "Create a basic chatbot using rule-based logic or a simple NLP library for a specific knowledge base."
+  a: "Explain the architecture of a complex project you've built. What were the key design decisions and trade-offs made?",
+  b: "How do you approach learning a new technology or framework? Provide specific examples from your experience.",
 };
 
-const advancedTechQuestions = {
-  a: "Implement a Q-Learning agent from scratch or optimize a pre-trained model for a specific edge case.",
-  b: "Set up a basic distributed task queue that can handle a mock AI workload.",
-  c: "Build a retrieval-augmented generation (RAG) pipeline that uses a vector database or knowledge graph."
+const beginnerDesignQuestions = {
+  a: "Select a product (digital or physical) with excellent design. Analyze what makes it effective and what you would improve.",
+  b: "Walk us through your creative process. How do you go from a blank canvas to a finished design?",
 };
 
-const designQuestions = {
-  a: "Describe your design process for a recent project.",
-  b: "Pick a popular app. What is one UI/UX improvement you would make and why?",
-  c: "How would you design a poster for an AI workshop?"
+const advancedDesignQuestions = {
+  a: "Redesign a common UI element (e.g., a date picker). Explain your reasoning for the changes and the user problems you solved.",
+  b: "How do you balance aesthetic appeal with functional usability and accessibility in your designs?",
 };
-
-const operationsQuestions = {
-  a: "Describe how you would plan and execute a 100-person workshop, from budget to feedback.",
-  b: "A key speaker for an event cancels last minute. What's your immediate action plan?",
-  c: "What tools would you use to keep track of tasks and timelines for a team project?"
-};
-
-const publicRelationsQuestions = {
-  a: "How would you handle negative feedback about the club on social media?",
-  b: "Draft a short press release for an upcoming club event.",
-  c: "What strategies would you use to increase the club's visibility on campus?"
-};
-
-const outreachQuestions = {
-  a: "How would you build and maintain relationships with other tech clubs or organizations?",
-  b: "Draft an outreach email to a potential sponsor for a hackathon.",
-  c: "What metrics would you track to measure the success of an outreach campaign?"
-};
-
-const TECHNICAL_ROLES = ["Tech"];
-const DESIGN_ROLES = ["Design"];
-const OPERATIONS_ROLES = ["Operations"];
-const PUBLIC_RELATIONS_ROLES = ["Public Relations"];
-const OUTREACH_ROLES = ["Outreach"];
 
 export function Step3Experience() {
-  const { control, watch, setValue } = useFormContext<ApplicationSchema>();
+  const { control, watch } = useFormContext<ApplicationSchema>();
   const experienceLevel = watch('experienceLevel');
   const selectedRoles = watch('roles', []);
 
-  useEffect(() => {
-    setValue('techQuestionChoice', 'a');
-  }, [experienceLevel, setValue]);
-
-  const getTechQuestions = (level: string | undefined) => {
-    switch (level) {
-      case 'Beginner': return beginnerTechQuestions;
-      case 'Intermediate': return intermediateTechQuestions;
-      case 'Advanced':
-      case 'Research/Expert': return advancedTechQuestions;
-      default: return null;
+  // Helper to get questions based on experience and role
+  const getQuestions = (role: string) => {
+    if (role === 'Tech') {
+      return experienceLevel === 'Beginner' ? beginnerTechQuestions : intermediateTechQuestions;
     }
-  }
+    if (role === 'Design') {
+      return experienceLevel === 'Beginner' ? beginnerDesignQuestions : advancedDesignQuestions;
+    }
+    // For other roles, provide standard high-quality questions
+    return {
+      a: `What is a project or initiative you've led or been a part of in the ${role} domain? What was the outcome?`,
+      b: `How would you handle a situation where a major project deadline is approaching and the team is behind schedule?`,
+    };
+  };
 
-  const techQuestions = getTechQuestions(experienceLevel);
-  const showTechChallenge = selectedRoles.some(role => TECHNICAL_ROLES.includes(role));
-  const showDesignChallenge = selectedRoles.some(role => DESIGN_ROLES.includes(role));
-  const showOperationsChallenge = selectedRoles.some(role => OPERATIONS_ROLES.includes(role));
-  const showPublicRelationsChallenge = selectedRoles.some(role => PUBLIC_RELATIONS_ROLES.includes(role));
-  const showOutreachChallenge = selectedRoles.some(role => OUTREACH_ROLES.includes(role));
+  const getRoleIcon = (role: string) => {
+    return {
+      'Tech': Code,
+      'Design': Palette,
+      'Operations': ClipboardCheck,
+      'Public Relations': Megaphone,
+      'Outreach': Contact
+    }[role] || Info;
+  };
+
+  const toCamelCase = (str: string) => {
+    return str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+  };
 
   return (
-    <div className="space-y-12 animate-fade-in text-white">
-      {/* Experience Level */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <Award className="text-primary" size={20} />
-          <h3 className="text-xl font-semibold text-white/90">Experience Level</h3>
+    <div className="space-y-20 animate-fade-in">
+      {/* Experience Level Selection */}
+      <div className="space-y-10">
+        <div className="flex items-center gap-4 border-b border-slate-100 pb-6">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+            <Star size={24} className="fill-primary" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-2xl font-bold text-slate-900">Experience Archetype</h3>
+            <p className="text-slate-500 font-medium">Define your current technical or creative standing.</p>
+          </div>
         </div>
+
         <FormField
           control={control}
           name="experienceLevel"
           render={({ field }) => (
-            <FormItem>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger className="h-14 bg-white/5 border-white/10 focus:border-primary/50 focus:ring-primary/20 rounded-2xl transition-all">
-                    <SelectValue placeholder="Select a level..." />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="bg-zinc-900 border-white/10">
-                  <SelectItem value="Beginner" className="focus:bg-primary/20">Beginner (Intro course completed)</SelectItem>
-                  <SelectItem value="Intermediate" className="focus:bg-primary/20">Intermediate (Built 2-5 personal projects)</SelectItem>
-                  <SelectItem value="Advanced" className="focus:bg-primary/20">Advanced (End-to-end projects)</SelectItem>
-                  <SelectItem value="Research/Expert" className="focus:bg-primary/20">Research/Expert (Publications/SOTA)</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage className="text-xs font-medium text-destructive/90" />
-            </FormItem>
+            <RadioGroup
+              onValueChange={field.onChange}
+              defaultValue={field.value}
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            >
+              {EXPERIENCE_LEVELS.map((level) => {
+                const isActive = field.value === level.id;
+                return (
+                  <FormItem key={level.id} className="space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value={level.id} className="sr-only" />
+                    </FormControl>
+                    <FormLabel
+                      className={cn(
+                        "flex flex-col items-start p-8 rounded-[2rem] border-2 cursor-pointer transition-all duration-500 h-full relative overflow-hidden group",
+                        isActive
+                          ? "bg-slate-900 border-slate-900 text-white shadow-2xl scale-[1.05]"
+                          : "bg-white border-slate-100 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                      )}
+                    >
+                      <div className={cn(
+                        "w-12 h-12 rounded-xl flex items-center justify-center mb-6 transition-all duration-500",
+                        isActive ? "bg-primary text-white" : "bg-slate-100 text-slate-500 group-hover:text-primary group-hover:bg-primary/10"
+                      )}>
+                        <level.icon size={24} />
+                      </div>
+                      <div className="space-y-2 relative z-10">
+                        <span className={cn("text-xl font-black block tracking-tight transition-colors", isActive ? "text-white" : "text-slate-900")}>
+                          {level.label}
+                        </span>
+                        <p className={cn("text-xs leading-relaxed font-medium transition-colors", isActive ? "text-slate-400" : "text-slate-500")}>
+                          {level.desc}
+                        </p>
+                      </div>
+
+                      {isActive && (
+                        <div className="absolute right-6 top-6 animate-in zoom-in spin-in-90 duration-500">
+                          <CheckCircle2 size={24} className="text-primary" />
+                        </div>
+                      )}
+
+                      <level.icon className={cn(
+                        "absolute -bottom-8 -right-8 w-32 h-32 opacity-[0.03] transition-transform duration-1000",
+                        isActive ? "scale-150 rotate-12 opacity-[0.07]" : "scale-100"
+                      )} />
+                    </FormLabel>
+                  </FormItem>
+                );
+              })}
+            </RadioGroup>
           )}
         />
       </div>
 
-      {/* Portfolio */}
-      <div className="space-y-6 border-t border-white/5 pt-12">
-        <div className="flex items-center gap-3">
-          <Terminal className="text-primary" size={20} />
-          <h3 className="text-xl font-semibold text-white/90">Project Portfolio</h3>
+      {/* Portfolio Section */}
+      <div className="space-y-10 group/section">
+        <div className="flex items-center gap-4 border-b border-slate-100 pb-6 group-hover/section:border-primary/20 transition-colors">
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover/section:bg-primary/10 group-hover/section:text-primary transition-all duration-500">
+            <Link2 size={24} />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-2xl font-bold text-slate-900">Strategic Portfolio</h3>
+            <p className="text-slate-500 font-medium">Documentation of past projects and implementations.</p>
+          </div>
         </div>
+
         <FormField
           control={control}
           name="projects"
           render={({ field }) => (
-            <FormItem>
-              <FormDescription className="text-white/40 mb-3">
-                Paste GitHub/Kaggle links. Briefly describe your tech stack and role.
-              </FormDescription>
+            <FormItem className="space-y-4">
+              <FormLabel className="text-sm font-bold text-slate-700">Project Links & Descriptions</FormLabel>
               <FormControl>
-                <Textarea
-                  rows={4}
-                  className="bg-white/5 border-white/10 focus:border-primary/50 focus:ring-primary/20 rounded-2xl transition-all font-mono text-sm leading-relaxed"
-                  placeholder="e.g., I built a real-time face mask detector using OpenCV and PyTorch..."
-                  {...field}
-                />
+                <div className="relative group">
+                  <Textarea
+                    placeholder="Provide links to your GitHub, Portfolio, or specific project documentations. Structure them with brief explanations."
+                    className="min-h-[220px] bg-white border-2 border-slate-100 rounded-[2rem] p-8 text-slate-700 leading-loose focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none font-mono"
+                    {...field}
+                  />
+                  <div className="absolute bottom-6 right-6 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 text-[10px] font-black text-slate-400 tracking-widest uppercase border border-slate-100 pointer-events-none">
+                    Markdown Supported
+                  </div>
+                </div>
               </FormControl>
-              <FormMessage className="text-xs font-medium text-destructive/90" />
+              <FormMessage className="font-semibold text-red-500" />
             </FormItem>
           )}
         />
       </div>
 
-      {/* Challenges Section */}
-      {(showTechChallenge || showDesignChallenge || showOperationsChallenge || showPublicRelationsChallenge || showOutreachChallenge) && (
-        <div className="space-y-12 border-t border-white/5 pt-12">
-          <div className="flex items-center gap-3">
-            <Brain className="text-primary" size={20} />
-            <h3 className="text-xl font-semibold text-white/90">Role-Specific Challenges</h3>
+      {/* Conditional Role Challenges */}
+      {selectedRoles.length > 0 && experienceLevel && (
+        <div className="space-y-16 py-10">
+          <div className="space-y-2 text-center">
+            <h3 className="text-3xl font-black text-slate-900 tracking-tight">Active Sector Challenges</h3>
+            <p className="text-slate-500 font-medium">Please address the prompts for each of your selected areas.</p>
           </div>
 
           <div className="grid grid-cols-1 gap-12">
-            {/* Tech Challenge */}
-            {showTechChallenge && (
-              <div className="space-y-6 animate-fade-in p-6 rounded-3xl bg-primary/5 border border-primary/10">
-                <div className="flex items-center gap-3">
-                  <Code className="text-primary" size={18} />
-                  <span className="font-bold text-sm tracking-widest uppercase text-primary/80">Coding Task</span>
-                </div>
-                {!techQuestions ? (
-                  <div className="flex items-center gap-2 text-sm text-white/40 italic p-4 bg-black/20 rounded-xl">
-                    <Info size={14} /> Please select your experience level above.
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    <FormField
-                      control={control}
-                      name="techQuestionChoice"
-                      render={({ field }) => (
-                        <FormItem className="space-y-4">
-                          <RadioGroup onValueChange={field.onChange} value={field.value} className="grid grid-cols-1 gap-3">
-                            {Object.entries(techQuestions).map(([key, value]) => (
-                              <div key={key} className={cn(
-                                "relative flex items-center p-4 rounded-xl border transition-all cursor-pointer",
-                                field.value === key ? "bg-white/10 border-white/20" : "bg-white/5 border-transparent hover:border-white/10"
-                              )} onClick={() => field.onChange(key)}>
-                                <FormControl><RadioGroupItem value={key} className="mr-3" /></FormControl>
-                                <span className="text-sm font-medium leading-relaxed">{value}</span>
-                              </div>
-                            ))}
-                          </RadioGroup>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={control}
-                      name="techQuestionAnswer"
-                      render={({ field }) => (
-                        <FormItem className="space-y-2">
-                          <FormLabel className="text-[10px] font-bold tracking-[0.2em] text-white/40 uppercase">Git Repository Link</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={16} />
-                              <Input
-                                placeholder="https://github.com/..."
-                                className="h-12 pl-11 bg-black/40 border-white/10 focus:border-primary/50 focus:ring-primary/20 rounded-xl"
+            {selectedRoles.map((role) => {
+              const RoleIcon = getRoleIcon(role);
+              const prefix = toCamelCase(role);
+              const questions = getQuestions(role);
+              const choiceField = `${prefix}QuestionChoice` as any;
+              const answerField = `${prefix}QuestionAnswer` as any;
+
+              return (
+                <div key={role} className="relative p-10 md:p-14 rounded-[3rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/50 group/card overflow-hidden transition-all hover:scale-[1.01]">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 group-hover/card:bg-primary/5 transition-colors duration-700" />
+
+                  <div className="relative z-10 flex flex-col md:flex-row gap-12">
+                    <div className="md:w-1/3 space-y-8">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-2xl primary-gradient flex items-center justify-center text-white shadow-xl shadow-primary/20 rotate-3 group-hover/card:rotate-0 transition-transform duration-500">
+                          <RoleIcon size={28} />
+                        </div>
+                        <h4 className="text-2xl font-black text-slate-900 tracking-tight">{role} Domain</h4>
+                      </div>
+
+                      <div className="space-y-4">
+                        <p className="text-sm font-bold text-slate-500 tracking-widest uppercase pb-2 border-b border-slate-100">Select Question</p>
+                        <FormField
+                          control={control}
+                          name={choiceField}
+                          render={({ field }) => (
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              className="space-y-4"
+                            >
+                              <FormItem className="relative">
+                                <FormControl>
+                                  <RadioGroupItem value="a" className="sr-only" />
+                                </FormControl>
+                                <FormLabel
+                                  className={cn(
+                                    "flex items-center gap-3 p-4 rounded-2xl border-2 transition-all cursor-pointer",
+                                    field.value === 'a' ? "bg-slate-900 border-slate-900 text-white" : "border-slate-100 hover:border-slate-200"
+                                  )}
+                                >
+                                  <span className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary/10 text-primary font-bold">1</span>
+                                  <span className="text-sm font-bold">Question Alpha</span>
+                                </FormLabel>
+                              </FormItem>
+                              <FormItem className="relative">
+                                <FormControl>
+                                  <RadioGroupItem value="b" className="sr-only" />
+                                </FormControl>
+                                <FormLabel
+                                  className={cn(
+                                    "flex items-center gap-3 p-4 rounded-2xl border-2 transition-all cursor-pointer",
+                                    field.value === 'b' ? "bg-slate-900 border-slate-900 text-white" : "border-slate-100 hover:border-slate-200"
+                                  )}
+                                >
+                                  <span className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary/10 text-primary font-bold">2</span>
+                                  <span className="text-sm font-bold">Question Beta</span>
+                                </FormLabel>
+                              </FormItem>
+                            </RadioGroup>
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="md:w-2/3 space-y-6">
+                      <div className="p-6 rounded-2xl bg-slate-50/80 border border-slate-100 min-h-[100px] flex items-center animate-in fade-in slide-in-from-right-10 duration-500">
+                        <p className="text-lg font-bold text-slate-800 leading-relaxed italic">
+                          "{(getQuestions(role) as any)[watch(choiceField) || 'a']}"
+                        </p>
+                      </div>
+
+                      <FormField
+                        control={control}
+                        name={answerField}
+                        render={({ field }) => (
+                          <FormItem className="space-y-4">
+                            <FormControl>
+                              <Textarea
+                                placeholder="Your detailed analysis starts here..."
+                                className="min-h-[250px] bg-white border-2 border-slate-200 rounded-[2rem] p-8 text-slate-700 leading-loose focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none"
                                 {...field}
                               />
-                            </div>
-                          </FormControl>
-                          <FormMessage className="text-xs font-medium text-destructive/90" />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
+                            </FormControl>
+                            <FormMessage className="font-semibold text-red-500" />
+                          </FormItem>
+                        )}
+                      />
 
-            {/* Design Challenge */}
-            {showDesignChallenge && (
-              <div className="space-y-6 animate-fade-in p-6 rounded-3xl bg-white/5 border border-white/5">
-                <div className="flex items-center gap-3">
-                  <Palette className="text-primary" size={18} />
-                  <span className="font-bold text-sm tracking-widest uppercase text-white/40">Design Task</span>
-                </div>
-                <FormField
-                  control={control}
-                  name="designQuestionChoice"
-                  render={({ field }) => (
-                    <FormItem className="space-y-4">
-                      <RadioGroup onValueChange={field.onChange} value={field.value} className="grid grid-cols-1 gap-3">
-                        {Object.entries(designQuestions).map(([key, value]) => (
-                          <div key={key} className={cn(
-                            "relative flex items-center p-4 rounded-xl border transition-all cursor-pointer",
-                            field.value === key ? "bg-white/10 border-white/20" : "bg-white/5 border-transparent hover:border-white/10"
-                          )} onClick={() => field.onChange(key)}>
-                            <FormControl><RadioGroupItem value={key} className="mr-3" /></FormControl>
-                            <span className="text-sm font-medium">{value}</span>
+                      {role === 'Tech' && (
+                        <div className="space-y-6 pt-6 border-t border-slate-100">
+                          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-orange-50 border border-orange-100 text-[10px] font-black text-orange-600 tracking-wider uppercase inline-flex">
+                            CRITICAL: Engineering Link Required
                           </div>
-                        ))}
-                      </RadioGroup>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={control}
-                  name="designQuestionAnswer"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea
-                          rows={3}
-                          className="bg-black/40 border-white/10 focus:border-primary/50 focus:ring-primary/20 rounded-xl"
-                          placeholder="Write your response here..."
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
-
-            {/* Other Challenges (Simplified) */}
-            {[
-              { id: 'operations', icon: ClipboardCheck, questions: operationsQuestions, show: showOperationsChallenge, label: 'Operations Task' },
-              { id: 'publicRelations', icon: Megaphone, questions: publicRelationsQuestions, show: showPublicRelationsChallenge, label: 'PR Task' },
-              { id: 'outreach', icon: Contact, questions: outreachQuestions, show: showOutreachChallenge, label: 'Outreach Task' }
-            ].map(challenge => challenge.show && (
-              <div key={challenge.id} className="space-y-6 animate-fade-in p-6 rounded-3xl bg-white/5 border border-white/5">
-                <div className="flex items-center gap-3">
-                  <challenge.icon className="text-primary" size={18} />
-                  <span className="font-bold text-sm tracking-widest uppercase text-white/40">{challenge.label}</span>
-                </div>
-                <FormField
-                  control={control}
-                  name={`${challenge.id}QuestionChoice` as any}
-                  render={({ field }) => (
-                    <RadioGroup onValueChange={field.onChange} value={field.value} className="grid grid-cols-1 gap-3">
-                      {Object.entries(challenge.questions).map(([key, value]) => (
-                        <div key={key} className={cn(
-                          "relative flex items-center p-4 rounded-xl border transition-all cursor-pointer",
-                          field.value === key ? "bg-white/10 border-white/20" : "bg-white/5 border-transparent hover:border-white/10"
-                        )} onClick={() => field.onChange(key)}>
-                          <FormControl><RadioGroupItem value={key} className="mr-3" /></FormControl>
-                          <span className="text-sm font-medium">{value}</span>
+                          <FormField
+                            control={control}
+                            name="techQuestionAnswer"
+                            render={({ field }) => (
+                              <FormItem className="space-y-3">
+                                <FormLabel className="text-sm font-bold text-slate-700">Git Repository Link</FormLabel>
+                                <FormControl>
+                                  <div className="relative group">
+                                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
+                                      <Code size={20} />
+                                    </div>
+                                    <Input
+                                      placeholder="https://github.com/username/repository"
+                                      className="h-16 pl-14 pr-6 bg-white border-2 border-slate-200 rounded-2xl focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-mono text-slate-800"
+                                      {...field}
+                                    />
+                                  </div>
+                                </FormControl>
+                                <FormMessage className="font-semibold text-red-500" />
+                              </FormItem>
+                            )}
+                          />
                         </div>
-                      ))}
-                    </RadioGroup>
-                  )}
-                />
-                <FormField
-                  control={control}
-                  name={`${challenge.id}QuestionAnswer` as any}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea
-                          rows={3}
-                          className="bg-black/40 border-white/10 focus:border-primary/50 focus:ring-primary/20 rounded-xl"
-                          placeholder="Write your response here..."
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            ))}
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Motivation */}
-      <div className="space-y-6 border-t border-white/5 pt-12">
-        <div className="flex items-center gap-3">
-          <Sparkles className="text-primary" size={20} />
-          <h3 className="text-xl font-semibold text-white/90">Why join us?</h3>
+      {/* Motivation Section */}
+      <div className="space-y-10 group/section">
+        <div className="flex items-center gap-4 border-b border-slate-100 pb-6 group-hover/section:border-primary/20 transition-colors">
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover/section:bg-primary/10 group-hover/section:text-primary transition-all duration-500">
+            <Award size={24} />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-2xl font-bold text-slate-900">Personal Manifesto</h3>
+            <p className="text-slate-500 font-medium">Why do you want to join the cohort?</p>
+          </div>
         </div>
+
         <FormField
           control={control}
           name="motivation"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="space-y-4">
+              <FormLabel className="text-sm font-bold text-slate-700">Statement of Purpose</FormLabel>
               <FormControl>
                 <Textarea
-                  rows={3}
-                  className="bg-white/5 border-white/10 focus:border-primary/50 focus:ring-primary/20 rounded-2xl transition-all"
-                  placeholder="Tell us what excites you about the Turing Club..."
+                  placeholder="Explain your drive, your vision, and what you bring to the table."
+                  className="min-h-[200px] bg-white border-2 border-slate-100 rounded-[2rem] p-8 text-slate-700 leading-loose focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none"
                   {...field}
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="font-semibold text-red-500" />
             </FormItem>
           )}
         />
