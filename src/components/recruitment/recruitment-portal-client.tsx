@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Lock, Send, ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
+import { Lock, Send, ChevronRight, ChevronLeft, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { applicationSchema, type ApplicationSchema } from '@/lib/schema';
 import { Step1PersonalDetails } from './step1-personal-details';
@@ -11,6 +11,8 @@ import { Step2RoleAndSkills } from './step2-role-and-skills';
 import { Step3Experience } from './step3-experience';
 import { SubmissionSuccess } from './submission-success';
 import { AdminDashboard } from './admin-dashboard';
+import { FormSection } from './form-section';
+import { Navbar } from './navbar';
 import { ProgressStepper } from './progress-stepper';
 import { useToast } from '@/hooks/use-toast';
 import { signInAnonymously } from 'firebase/auth';
@@ -31,6 +33,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { verifyAdminPassword } from '@/lib/actions';
+import { cn } from '@/lib/utils';
 
 
 export function RecruitmentPortalClient() {
@@ -47,6 +50,7 @@ export function RecruitmentPortalClient() {
 
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
   const methods = useForm<ApplicationSchema>({
@@ -93,14 +97,14 @@ export function RecruitmentPortalClient() {
 
   useEffect(() => {
     if (auth && !user && !isUserLoading) {
-        signInAnonymously(auth).catch((error) => {
+      signInAnonymously(auth).catch((error) => {
         console.error("Anonymous sign-in failed:", error);
         toast({
-            variant: 'destructive',
-            title: "Authentication Error",
-            description: "Could not connect to the service. Please refresh the page.",
+          variant: 'destructive',
+          title: "Authentication Error",
+          description: "Could not connect to the service. Please refresh the page.",
         });
-        });
+      });
     }
   }, [auth, user, isUserLoading, toast]);
 
@@ -121,7 +125,7 @@ export function RecruitmentPortalClient() {
     setValidatedData(data);
     setShowConfirmDialog(true);
   };
-  
+
   const handleConfirmedSubmit = async () => {
     if (!validatedData) return;
 
@@ -143,12 +147,12 @@ export function RecruitmentPortalClient() {
       setShowConfirmDialog(false);
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const collectionRef = collection(firestore, 'artifacts', firebaseConfig.appId, 'public', 'data', 'recruitment_applications');
-      
+
       await addDoc(collectionRef, {
         ...validatedData,
         userId: user.uid,
@@ -166,7 +170,7 @@ export function RecruitmentPortalClient() {
         requestResourceData: validatedData,
       });
       errorEmitter.emit('permission-error', permissionError);
-      
+
       toast({
         variant: "destructive",
         title: "Submission Failed",
@@ -184,34 +188,34 @@ export function RecruitmentPortalClient() {
     try {
       const isValid = await verifyAdminPassword(adminPassword);
       if (isValid) {
-          setShowAdmin(true);
-          setShowAdminLogin(false);
-          setAdminPassword('');
+        setShowAdmin(true);
+        setShowAdminLogin(false);
+        setAdminPassword('');
       } else {
-          toast({
-              variant: "destructive",
-              title: "Access Denied",
-              description: "The password you entered is incorrect.",
-          });
-          setAdminPassword('');
+        toast({
+          variant: "destructive",
+          title: "Access Denied",
+          description: "The password you entered is incorrect.",
+        });
+        setAdminPassword('');
       }
     } catch (error) {
-       toast({
-            variant: "destructive",
-            title: "Error",
-            description: "An error occurred while verifying the password.",
-        });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An error occurred while verifying the password.",
+      });
     } finally {
-        setIsVerifying(false);
+      setIsVerifying(false);
     }
   };
 
 
   if (isUserLoading) {
     return (
-        <div className="flex h-screen w-full items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     )
   }
 
@@ -230,60 +234,101 @@ export function RecruitmentPortalClient() {
   ];
 
   return (
-    <div className="max-w-3xl mx-auto p-4 md:p-8">
-      <header className="mb-8 text-center space-y-2 relative">
-        <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-xl mb-4 border border-primary/20">
-          <Image
-            src={logo}
-            alt="Turing Club Logo"
-            width="64"
-            height="64"
-            className="rounded-full"
-          />
-          <span className="font-bold text-primary tracking-wider ml-2">TURING CLUB RECRUITMENT 2025</span>
-        </div>
-        <h1 className="text-3xl md:text-4xl font-bold text-foreground">Turing Club Application</h1>
-        <Button
-          onClick={() => setShowAdminLogin(true)}
-          className="absolute top-0 right-0"
-          variant="ghost"
-          size="icon"
-          title="Admin Login"
-        >
-          <Lock size={16} />
-        </Button>
-      </header>
-      
-      <ProgressStepper step={step} totalSteps={3} />
+    <div className="relative min-h-screen">
+      <Navbar onAdminClick={() => setShowAdminLogin(true)} />
 
-      <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)} className="mb-12">
-          <div className="animate-fade-in">{steps[step - 1]}</div>
-
-          <div className="mt-8 flex justify-between">
-            <Button
-              type="button"
-              onClick={prevStep}
-              disabled={step === 1}
-              variant="outline"
-              className={`transition-opacity ${step === 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
-            >
-              <ChevronLeft size={18} className="mr-1" /> Back
-            </Button>
-
-            {step < 3 ? (
-              <Button type="button" onClick={nextStep}>
-                Next Step <ChevronRight size={18} className="ml-1" />
-              </Button>
-            ) : (
-              <Button type="submit" disabled={isSubmitting || isUserLoading}>
-                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send size={16} className="mr-2" />}
-                {isSubmitting ? 'Saving...' : 'Submit Application'}
-              </Button>
-            )}
+      <div className="max-w-4xl mx-auto px-4 pt-12 pb-24">
+        <div className="mb-12 text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold tracking-[0.2em] text-primary uppercase animate-glow">
+            Recruitment Phase 2025
           </div>
-        </form>
-      </FormProvider>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white">
+            Join the <span className="text-gradient">Turing Club</span>
+          </h1>
+          <p className="text-white/40 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+            Elevate your skills, collaborate on breakthrough projects, and become part of our elite engineering community.
+          </p>
+        </div>
+
+        <div className="mb-12">
+          <ProgressStepper step={step} totalSteps={3} />
+        </div>
+
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-8">
+            <div className="animate-fade-in">
+              {step === 1 && (
+                <FormSection
+                  id="personal"
+                  index={1}
+                  title="Personal Blueprint"
+                  description="Tell us who you are. This information helps us get in touch and understand your background."
+                >
+                  <Step1PersonalDetails />
+                </FormSection>
+              )}
+              {step === 2 && (
+                <FormSection
+                  id="roles"
+                  index={2}
+                  title="Skills & Arsenal"
+                  description="Choose your path. Select the roles that excite you and show us what you're capable of."
+                >
+                  <Step2RoleAndSkills />
+                </FormSection>
+              )}
+              {step === 3 && (
+                <FormSection
+                  id="experience"
+                  index={3}
+                  title="Final Frontier"
+                  description="Showcase your work. Share your projects and tackle a role-specific challenge."
+                >
+                  <Step3Experience />
+                </FormSection>
+              )}
+            </div>
+
+            <div className="pt-8 flex items-center justify-between border-t border-white/5">
+              <Button
+                type="button"
+                onClick={prevStep}
+                disabled={step === 1}
+                variant="ghost"
+                className={cn(
+                  "h-12 px-6 rounded-2xl hover:bg-white/5 transition-all",
+                  step === 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                )}
+              >
+                <ChevronLeft size={18} className="mr-2" /> Previous Step
+              </Button>
+
+              {step < 3 ? (
+                <Button
+                  type="button"
+                  onClick={nextStep}
+                  className="h-12 px-8 rounded-2xl primary-gradient hover:opacity-90 transition-all font-bold shadow-[0_0_20px_rgba(var(--primary),0.3)]"
+                >
+                  Next Stage <ChevronRight size={18} className="ml-2" />
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || isUserLoading}
+                  className="h-12 px-8 rounded-2xl primary-gradient hover:opacity-90 transition-all font-bold shadow-[0_0_20px_rgba(var(--primary),0.3)]"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send size={16} className="mr-2" />
+                  )}
+                  {isSubmitting ? 'Transmitting...' : 'Complete Application'}
+                </Button>
+              )}
+            </div>
+          </form>
+        </FormProvider>
+      </div>
 
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
@@ -311,19 +356,30 @@ export function RecruitmentPortalClient() {
               Please enter the admin password to view the dashboard.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="py-2">
-            <Input
-              type="password"
-              placeholder="Password"
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleAdminLogin();
-                }
-              }}
-            />
+          <div className="py-4 relative">
+            <div className="relative">
+              <Input
+                type={showPassword ? "text" : "password"}
+                placeholder="Manager Authentication Key"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                className="h-12 bg-white/5 border-white/10 rounded-xl pr-12 focus:border-primary/50"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAdminLogin();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+                title={showPassword ? "Hide Password" : "Show Password"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setAdminPassword('')}>Cancel</AlertDialogCancel>
