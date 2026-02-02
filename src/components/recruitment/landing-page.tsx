@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronRight, Code, Palette, Users, Zap, Terminal, Globe, Rocket } from 'lucide-react';
 import Image from 'next/image';
 import logo from '@/assets/logo/logo.jpg';
+import { Footer } from './footer';
 
 interface LandingPageProps {
     onStart: () => void;
@@ -18,7 +19,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
                 <div className="container px-4 mx-auto text-center">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold tracking-wider text-primary uppercase mb-8 animate-fade-in">
                         <Zap size={14} className="fill-primary" />
-                        Recruitment Phase 2025 is Live
+                        Recruitment Phase 2026 is Live
                     </div>
 
                     <h1 className="text-5xl md:text-8xl font-black tracking-tight text-slate-900 mb-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
@@ -156,7 +157,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
                         <div className="relative z-10 space-y-8">
                             <h2 className="text-4xl md:text-5xl font-black text-white">Ready to join?</h2>
                             <p className="text-slate-400 text-lg max-w-xl mx-auto">
-                                Applications for the 2025 cohort are closing soon. Don't miss your chance to be part of something legendary.
+                                Applications for the 2026 cohort are closing soon. Don't miss your chance to be part of something legendary.
                             </p>
                             <Button
                                 onClick={onStart}
@@ -169,6 +170,8 @@ export function LandingPage({ onStart }: LandingPageProps) {
                     </div>
                 </div>
             </section>
+
+            <Footer />
         </div>
     );
 }

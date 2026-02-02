@@ -33,6 +33,7 @@ import { Input } from '@/components/ui/input';
 import { verifyAdminPassword } from '@/lib/actions';
 import { cn } from '@/lib/utils';
 import { LandingPage } from './landing-page';
+import { Footer } from './footer';
 
 
 export function RecruitmentPortalClient() {
@@ -457,9 +458,7 @@ export function RecruitmentPortalClient() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <footer className="text-center text-muted-foreground text-sm pb-8">
-        &copy; 2025 The Turing Club. Securely powered by Firebase.
-      </footer>
+      <Footer />
     </div>
   );
 }

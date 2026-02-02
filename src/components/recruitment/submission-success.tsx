@@ -5,6 +5,7 @@ import { CheckCircle2, PartyPopper, ArrowRight } from 'lucide-react';
 import type { Application, ApplicationData } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Navbar } from './navbar';
+import { Footer } from './footer';
 
 export function SubmissionSuccess({ submittedData }: { submittedData: ApplicationData | null }) {
   if (!submittedData) {
@@ -48,7 +49,7 @@ export function SubmissionSuccess({ submittedData }: { submittedData: Applicatio
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">Transmission Received</h2>
             <p className="text-xl text-slate-500 font-medium max-w-xl mx-auto leading-relaxed">
-              Thank you for applying. Your application has been successfully recorded in the 2025 cohort database.
+              Thank you for applying. Your application has been successfully recorded in the 2026 cohort database.
             </p>
           </div>
         </div>
@@ -73,17 +74,15 @@ export function SubmissionSuccess({ submittedData }: { submittedData: Applicatio
               Exit Portal
             </Button>
             <Button asChild className="h-14 px-8 rounded-2xl primary-gradient font-bold text-white shadow-lg shadow-primary/20">
-              <a href="https://turingclub.org" target="_blank">
+              <a href="https://theturingclub.vercel.app/" target="_blank">
                 Visit Official Website <ArrowRight size={18} className="ml-2" />
               </a>
             </Button>
           </div>
         </div>
 
-        <footer className="text-center text-slate-400 text-xs font-bold tracking-[0.2em] uppercase py-12 mt-20 border-t border-slate-100">
-          &copy; 2025 The Turing Club Systems | Engineering the Unknown
-        </footer>
       </div>
+      <Footer />
     </div>
   );
 }
